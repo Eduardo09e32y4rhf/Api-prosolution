@@ -1,0 +1,1727 @@
+================================================================================
+PROSOLUTION IA — FULL PROJECT DUMP
+Generated at: 2025-12-22 19:33:29.977425
+Project root: C:\Users\eduar\Desktop\Api-prosolution-main
+================================================================================
+
+PROJECT STRUCTURE
+--------------------------------------------------------------------------------
+Api-prosolution-main/
+  .env
+  dump_prosolution.py
+  prosolution_full_dump.txt
+  README.md
+  requirements.txt
+  app/
+    auth.py
+    config.py
+    dashboard.py
+    database.py
+    main.py
+    models.py
+    security.py
+    vpn_block.py
+    __init__.py
+    ai/
+      chatgpt_service.py
+      content_generator.py
+      gemini_service.py
+      orchestrator.py
+      routes.py
+      schemas.py
+      __init__.py
+      admin/
+        policies.py
+        prompts.py
+        system_admin.py
+      providers/
+        base.py
+        gemini.py
+        openai.py
+    auth/
+      routes.py
+      security.py
+      __init__.py
+    dashboard/
+      routes.py
+      __init__.py
+    database/
+      automation_repository.py
+      base.py
+      client_repository.py
+      db.py
+      post_repository.py
+      seed_admin.py
+      session.py
+      user_repository.py
+      __init__.py
+      app/
+        database/
+          models/
+            user.py
+      migrations/
+        env.py
+      models/
+        post.py
+        user.py
+        __init__.py
+      repositories/
+        post_repository.py
+        user_repo.py
+        __init__.py
+    instagram/
+      client.py
+      post.py
+      router.py
+      schemas.py
+      service.py
+      test_token.py
+      __init__.py
+    payments/
+      mercadopago_client.py
+      routes.py
+      schemas.py
+      service.py
+      __init__.py
+    scheduler/
+      post_runner.py
+      scheduler.py
+      __init__.py
+    utils/
+      security.py
+  static/
+    css/
+      __init__.py
+    js/
+  templates/
+
+FILE CONTENTS
+--------------------------------------------------------------------------------
+
+================================================================================
+FILE: .env
+================================================================================
+# ======================
+# INSTAGRAM
+# ======================
+INSTAGRAM_ACCESS_TOKEN=EAAby2qcqYI4BQYrLGlZC8y4FVv4VjAncps6mk8Loz8NynjLSDJHaosfypCveFUR6c5CnEPjkGcIqWSg8mQcZCJ8oZAidFwCC79ZBdTUpEJphCYLYeGgRKTZAvMpaPzVtwcpWYR6V0pWbLYhr9j7H3C2C8NQV4dx5IEI4ycYF1bQbzmgE6te4R0Ad5KyVoZBCBXKb0Uc4em69QK33cFIEGZAnWh7q2oXDunrHNSWeJIZD
+INSTAGRAM_BUSINESS_ACCOUNT_ID=17841479719754804
+INSTAGRAM_API_VERSION=v24.0
+INSTAGRAM_BASE_URL=https://graph.facebook.com
+
+# ======================
+# GEMINI (Google AI)
+# ======================
+GEMINI_API_KEY=AIzaSyB576pkP8jZdXnIH2qMfL-q710gWMmpob4
+
+DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/prosolution
+DB_ECHO=false
+DB_POOL_SIZE=10
+
+MERCADO_PAGO_ACCESS_TOKEN=APP_USR-6557276044940245-122113-ab6845a13a38ab6afa8690b107b8a224-419957141
+================================================================================
+FILE: dump_prosolution.py
+================================================================================
+import os
+from datetime import datetime
+
+PROJECT_ROOT = os.getcwd()
+OUTPUT_FILE = "prosolution_full_dump.txt"
+
+INCLUDE_EXTENSIONS = {".py", ".txt", ".md", ".env", ".example"}
+EXCLUDE_DIRS = {
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "node_modules",
+    ".idea",
+    ".vscode",
+}
+
+def should_include_file(filename):
+    return any(filename.endswith(ext) for ext in INCLUDE_EXTENSIONS)
+
+def is_excluded_dir(path):
+    return any(part in EXCLUDE_DIRS for part in path.split(os.sep))
+
+def write_header(f):
+    f.write("=" * 80 + "\n")
+    f.write("PROSOLUTION IA — FULL PROJECT DUMP\n")
+    f.write(f"Generated at: {datetime.now()}\n")
+    f.write(f"Project root: {PROJECT_ROOT}\n")
+    f.write("=" * 80 + "\n\n")
+
+def dump_tree(f):
+    f.write("PROJECT STRUCTURE\n")
+    f.write("-" * 80 + "\n")
+    for root, dirs, files in os.walk(PROJECT_ROOT):
+        if is_excluded_dir(root):
+            continue
+        level = root.replace(PROJECT_ROOT, "").count(os.sep)
+        indent = "  " * level
+        f.write(f"{indent}{os.path.basename(root)}/\n")
+        for file in files:
+            if should_include_file(file):
+                f.write(f"{indent}  {file}\n")
+    f.write("\n")
+
+def dump_files(f):
+    f.write("FILE CONTENTS\n")
+    f.write("-" * 80 + "\n")
+    for root, dirs, files in os.walk(PROJECT_ROOT):
+        if is_excluded_dir(root):
+            continue
+        for file in files:
+            if should_include_file(file):
+                file_path = os.path.join(root, file)
+                rel_path = os.path.relpath(file_path, PROJECT_ROOT)
+                f.write("\n" + "=" * 80 + "\n")
+                f.write(f"FILE: {rel_path}\n")
+                f.write("=" * 80 + "\n")
+                try:
+                    with open(file_path, "r", encoding="utf-8", errors="ignore") as rf:
+                        f.write(rf.read())
+                except Exception as e:
+                    f.write(f"\n[ERROR READING FILE: {e}]\n")
+
+def dump_summary(f):
+    file_count = 0
+    line_count = 0
+    for root, dirs, files in os.walk(PROJECT_ROOT):
+        if is_excluded_dir(root):
+            continue
+        for file in files:
+            if should_include_file(file):
+                file_count += 1
+                try:
+                    with open(os.path.join(root, file), "r", encoding="utf-8", errors="ignore") as rf:
+                        line_count += sum(1 for _ in rf)
+                except:
+                    pass
+
+    f.write("\n" + "=" * 80 + "\n")
+    f.write("PROJECT SUMMARY\n")
+    f.write("=" * 80 + "\n")
+    f.write(f"Total files included: {file_count}\n")
+    f.write(f"Total lines of code/text: {line_count}\n")
+
+if __name__ == "__main__":
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        write_header(f)
+        dump_tree(f)
+        dump_files(f)
+        dump_summary(f)
+
+    print(f"\n✅ Dump gerado com sucesso: {OUTPUT_FILE}\n")
+
+================================================================================
+FILE: prosolution_full_dump.txt
+================================================================================
+
+================================================================================
+FILE: README.md
+================================================================================
+# 🚀 Prosolution API — SaaS de Automação Inteligente
+
+A **Prosolution API** é uma plataforma **SaaS backend-first**, desenvolvida com **FastAPI**, focada em **segurança, automação e escalabilidade**, simulando um produto real pronto para mercado.
+
+Este projeto foi pensado **além do CRUD**, com visão de arquitetura, autenticação moderna, controle de usuários, planos e deploy em produção.
+
+---
+
+## 🧠 Visão do Projeto
+
+O objetivo da Prosolution é servir como **base sólida para um SaaS profissional**, incluindo:
+
+* Autenticação real
+* Segurança por IP
+* Controle de usuários e administradores
+* Estrutura de monetização
+* Código limpo e organizado
+* Deploy funcional em cloud (Render)
+
+---
+
+## 🔐 Funcionalidades Implementadas
+
+### ✅ Autenticação & Segurança
+
+* Login real com **PostgreSQL**
+* Senhas criptografadas com **bcrypt**
+* Autenticação via **JWT**
+* Sessão baseada em token
+* Proteção de rotas autenticadas
+* Redirecionamento automático após login
+
+### 🚫 Bloqueio de VPN / Proxy
+
+* Validação de IP do cliente
+* Bloqueio de acessos via VPN ou Proxy
+* Estrutura pronta para integração com APIs anti-fraude
+
+### 👥 Usuários & Admin
+
+* Usuários comuns
+* Usuários administradores
+* Controle de permissões
+* Plano associado ao usuário (free / pro / enterprise)
+
+### 💳 Monetização (estrutura pronta)
+
+* Base de planos no banco
+* Controle de acesso por plano
+* Preparado para Stripe / Mercado Pago
+
+---
+
+## 🖥️ Interface
+
+* Tela de login moderna
+* Dashboard autenticado
+* UI estilo terminal / hacker
+* Renderização dinâmica com dados do usuário (JWT)
+
+---
+
+## 🛠️ Stack Tecnológica
+
+* **Python 3.13**
+* **FastAPI**
+* **PostgreSQL**
+* **JWT (python-jose)**
+* **Passlib + Bcrypt**
+* **Jinja2**
+* **Uvicorn**
+* **APScheduler**
+* **HTML + CSS**
+* **Deploy: Render**
+
+---
+
+## 📂 Estrutura do Projeto
+
+```
+app/
+├── auth/          # Autenticação, JWT e segurança
+├── dashboard/     # Rotas protegidas e dashboard
+├── database/      # PostgreSQL e repositórios
+├── scheduler/     # Automação e jobs
+├── utils/         # VPN / Proxy block
+├── main.py        # Entry point
+static/
+templates/
+requirements.txt
+README.md
+```
+
+---
+
+## 🚀 Rodando Localmente
+
+```bash
+git clone https://github.com/Eduardo09e32y4rhf/Api-prosolution.git
+cd Api-prosolution
+python -m venv venv
+venv\Scripts\activate   # Windows
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+Acesse:
+
+```
+http://localhost:8000
+```
+
+---
+
+## 🌍 Deploy
+
+Aplicação publicada na **Render**, com deploy automático via GitHub.
+
+---
+
+## 👨‍💻 Sobre o Desenvolvedor
+
+**José Eduardo da Silva**
+🎓 Formado em **Análise e Desenvolvimento de Sistemas**
+💻 Backend Developer — APIs, Automação e Segurança
+
+Experiência prática com:
+
+* FastAPI
+* Arquitetura backend
+* Autenticação JWT
+* Banco de dados
+* Deploy em produção
+
+Este projeto demonstra **capacidade técnica + visão de produto**, indo além de exemplos básicos.
+
+🔗 GitHub: [https://github.com/Eduardo09e32y4rhf](https://github.com/Eduardo09e32y4rhf)
+
+---
+
+## ⭐ Conclusão
+
+A **Prosolution API** é uma base real para um SaaS moderno, pronta para evolução com:
+
+* Pagamentos reais
+* Multi-tenant
+* Logs e métricas
+* Escala horizontal
+* Painel administrativo completo
+
+> Código limpo, funcional e com visão de mercado.
+
+================================================================================
+FILE: requirements.txt
+================================================================================
+fastapi==0.124.4
+uvicorn==0.38.0
+
+SQLAlchemy==2.0.36
+greenlet>=3.0.0
+asyncpg
+aiosqlite
+psycopg[binary]>=3.1
+
+
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+python-dotenv==1.2.1
+python-multipart==0.0.20
+
+Jinja2==3.1.6
+requests==2.32.5
+pytz==2025.2
+httpx==0.27.0
+pydantic-settings
+================================================================================
+FILE: app\auth.py
+================================================================================
+from fastapi import APIRouter, Request, Form, Depends
+from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
+
+from app.database import SessionLocal
+from app.models import User
+from app.security import verify_password, create_token
+from app.vpn_block import is_vpn
+
+router = APIRouter()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@router.post("/login")
+def login(
+    request: Request,
+    email: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    ip = request.client.host
+    if is_vpn(ip):
+        return {"error": "VPN/Proxy bloqueado"}
+
+    user = db.query(User).filter(User.email == email).first()
+    if not user or not verify_password(password, user.password):
+        return {"error": "Credenciais inválidas"}
+
+    token = create_token({
+        "sub": user.email,
+        "admin": user.is_admin,
+        "plan": user.plan
+    })
+
+    resp = RedirectResponse("/dashboard", 302)
+    resp.set_cookie("token", token, httponly=True)
+    return resp
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
+templates = Jinja2Templates(directory="templates")
+
+@router.get("/login", response_class=HTMLResponse)
+def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+================================================================================
+FILE: app\config.py
+================================================================================
+from pydantic_settings import BaseSettings
+from dotenv import load_dotenv
+import os
+
+# Carrega variáveis do .env
+load_dotenv()
+
+
+class Settings(BaseSettings):
+    # === Banco de dados ===
+    DATABASE_URL: str
+    DB_ECHO: bool = False
+    DB_POOL_SIZE: int = 10
+    ENV: str = "development"
+
+    # === Configurações do Instagram ===
+    INSTAGRAM_ACCESS_TOKEN: str
+    INSTAGRAM_BUSINESS_ACCOUNT_ID: str
+    INSTAGRAM_API_VERSION: str = "v24.0"
+    INSTAGRAM_BASE_URL: str = "https://graph.facebook.com"
+
+    # === Configurações do Gemini ===
+    GEMINI_API_KEY: str
+
+    class Config:
+        env_file = ".env"
+        extra = "allow"  # Permite variáveis extras sem erro
+
+
+# Instância global para importar em outros módulos
+settings = Settings()
+
+
+# Variáveis de acesso rápido (sem precisar chamar settings.xxx)
+INSTAGRAM_ACCESS_TOKEN = settings.INSTAGRAM_ACCESS_TOKEN
+INSTAGRAM_BUSINESS_ACCOUNT_ID = settings.INSTAGRAM_BUSINESS_ACCOUNT_ID
+INSTAGRAM_API_VERSION = settings.INSTAGRAM_API_VERSION
+INSTAGRAM_BASE_URL = settings.INSTAGRAM_BASE_URL
+GEMINI_API_KEY = settings.GEMINI_API_KEY
+import os
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+
+================================================================================
+FILE: app\dashboard.py
+================================================================================
+from fastapi import APIRouter, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from jose import jwt
+import os
+
+router = APIRouter()
+templates = Jinja2Templates(directory="templates")
+
+@router.get("/dashboard", response_class=HTMLResponse)
+def dashboard(request: Request):
+    token = request.cookies.get("token")
+    if not token:
+        return {"error": "Não autenticado"}
+
+    data = jwt.decode(token, os.getenv("SECRET_KEY"), algorithms=["HS256"])
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {"request": request, "user": data}
+    )
+
+
+================================================================================
+FILE: app\database.py
+================================================================================
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(bind=engine)
+
+Base = declarative_base()
+
+================================================================================
+FILE: app\main.py
+================================================================================
+from fastapi import FastAPI, Request, Depends
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+# === IMPORTS DOS MÓDULOS ===
+from app.auth.routes import router as auth_router
+from app.dashboard.routes import router as dashboard_router
+from app.instagram.router import router as instagram_router
+from app.ai.routes import router as ai_router
+
+# Banco de dados
+from app.database.session import get_db
+from app.database.repositories.user_repo import UserRepository
+
+# === INICIALIZA O FASTAPI ===
+app = FastAPI(title="ProSolution API")
+
+from app.database.base import init_db
+
+@app.on_event("startup")
+async def startup_event():
+    await init_db()
+
+# === ARQUIVOS ESTÁTICOS E TEMPLATES ===
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+# === ROTA PRINCIPAL ===
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+# === ROTEADORES (MÓDULOS) ===
+app.include_router(auth_router, prefix="/auth")
+app.include_router(dashboard_router)
+app.include_router(instagram_router)
+app.include_router(ai_router)
+
+# === ROTEADORES DE BANCO / USERS ===
+@app.get("/api")
+async def root():
+    return {"message": "🚀 ProSolution API running!"}
+
+@app.get("/api/users")
+async def list_users(db=Depends(get_db)):
+    repo = UserRepository(db)
+    return await repo.list_all()
+
+@app.post("/api/users")
+async def create_user(email: str, password_hash: str, db=Depends(get_db)):
+    repo = UserRepository(db)
+    user = await repo.create({"email": email, "password_hash": password_hash})
+    return user
+
+from app.payments.routes import router as payments_router
+
+app.include_router(payments_router)
+================================================================================
+FILE: app\models.py
+================================================================================
+from sqlalchemy import Column, Integer, String, Boolean
+from app.database import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    email = Column(String, unique=True)
+    password = Column(String)
+    is_admin = Column(Boolean, default=False)
+    plan = Column(String, default="free")
+
+================================================================================
+FILE: app\security.py
+================================================================================
+import os
+from datetime import datetime, timedelta
+from jose import jwt
+from passlib.context import CryptContext
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = "HS256"
+
+pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password):
+    return pwd.hash(password)
+
+def verify_password(password, hashed):
+    return pwd.verify(password, hashed)
+
+def create_token(data: dict):
+    data["exp"] = datetime.utcnow() + timedelta(hours=2)
+    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+
+================================================================================
+FILE: app\vpn_block.py
+================================================================================
+import requests
+
+def is_vpn(ip: str):
+    try:
+        r = requests.get(f"https://ip-api.com/json/{ip}?fields=proxy,hosting")
+        data = r.json()
+        return data.get("proxy") or data.get("hosting")
+    except:
+        return False
+
+================================================================================
+FILE: app\__init__.py
+================================================================================
+
+================================================================================
+FILE: app\ai\chatgpt_service.py
+================================================================================
+import httpx
+from app.config import OPENAI_API_KEY
+
+OPENAI_URL = "https://api.openai.com/v1/chat/completions"
+
+async def generate_with_chatgpt(prompt: str):
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": "gpt-4o-mini",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.7
+    }
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        res = await client.post(OPENAI_URL, headers=headers, json=payload)
+
+    data = res.json()
+    return data["choices"][0]["message"]["content"]
+================================================================================
+FILE: app\ai\content_generator.py
+================================================================================
+from app.ai.gemini_service import generate_with_gemini
+from app.ai.chatgpt_service import generate_with_chatgpt
+
+async def generate_content(niche: str, objective: str):
+    prompt = f"""
+Crie uma legenda para Instagram.
+Nicho: {niche}
+Objetivo: {objective}
+Inclua hashtags.
+"""
+
+    try:
+        return await generate_with_gemini(prompt)
+    except:
+        return await generate_with_chatgpt(prompt)
+================================================================================
+FILE: app\ai\gemini_service.py
+================================================================================
+import httpx
+from fastapi import HTTPException
+from app.config import GEMINI_API_KEY
+
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent"
+
+async def generate_with_gemini(prompt: str):
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}]
+    }
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        res = await client.post(
+            GEMINI_URL,
+            params={"key": GEMINI_API_KEY},
+            json=payload
+        )
+
+    data = res.json()
+
+    if res.status_code != 200:
+        raise HTTPException(400, data)
+
+    return data["candidates"][0]["content"]["parts"][0]["text"]
+================================================================================
+FILE: app\ai\orchestrator.py
+================================================================================
+from app.ai.providers.gemini import GeminiProvider
+from app.ai.providers.openai import OpenAIProvider
+
+gemini = GeminiProvider()
+openai = OpenAIProvider()
+
+def generate_instagram_content(topic: str) -> dict:
+    base = gemini.generate(f"Crie legenda criativa sobre: {topic}")
+    improved = openai.generate(f"Melhore com CTA:\n{base}")
+    return {"caption": improved}
+
+================================================================================
+FILE: app\ai\routes.py
+================================================================================
+from fastapi import APIRouter
+from app.ai.orchestrator import generate_instagram_content
+from app.ai.admin.system_admin import evaluate_system
+
+router = APIRouter(prefix="/ai", tags=["AI"])
+
+@router.post("/instagram-content")
+def instagram_content(topic: str):
+    return generate_instagram_content(topic)
+
+@router.post("/admin-review")
+def admin_review(system_snapshot: dict):
+    return {"admin_prompt": evaluate_system(system_snapshot)}
+
+================================================================================
+FILE: app\ai\schemas.py
+================================================================================
+from pydantic import BaseModel
+
+class GeminiInstagramSchema(BaseModel):
+    niche: str
+    objective: str
+    language: str = "pt-BR"
+================================================================================
+FILE: app\ai\__init__.py
+================================================================================
+ 
+================================================================================
+FILE: app\ai\admin\policies.py
+================================================================================
+FORBIDDEN_MARKETING_TOPICS = [
+    "politica", "religiao", "ideologia", "lgbt",
+    "orientacao sexual", "identidade de genero",
+    "violencia", "odio", "seguranca publica",
+    "armas", "saude sensivel"
+]
+
+def is_forbidden_topic(text: str) -> bool:
+    text = text.lower()
+    return any(topic in text for topic in FORBIDDEN_MARKETING_TOPICS)
+
+================================================================================
+FILE: app\ai\admin\prompts.py
+================================================================================
+SYSTEM_ADMIN_PROMPT = '''
+Você é a IA ADMINISTRADORA GERAL (AI GOVERNANCE ADMIN).
+
+Você NÃO executa código.
+Você NÃO altera arquivos.
+Você NÃO faz deploy.
+
+Seu papel:
+- Avaliar segurança
+- Avaliar código
+- Avaliar LGPD
+- Avaliar riscos jurídicos
+- Avaliar bugs prováveis
+- Avaliar dependências
+
+No final gere UM PROMPT com:
+🔴 OBRIGATÓRIO
+🟡 NECESSÁRIO
+🟢 MELHORIAS OPCIONAIS
+'''
+
+================================================================================
+FILE: app\ai\admin\system_admin.py
+================================================================================
+from app.ai.providers.openai import OpenAIProvider
+from app.ai.providers.gemini import GeminiProvider
+from app.ai.admin.prompts import SYSTEM_ADMIN_PROMPT
+
+openai = OpenAIProvider()
+gemini = GeminiProvider()
+
+def evaluate_system(system_snapshot: dict) -> str:
+    tech = openai.generate(f"Analise tecnicamente:\n{system_snapshot}")
+    product = gemini.generate(f"Avalie produto e UX:\n{system_snapshot}")
+
+    final = openai.generate(
+        SYSTEM_ADMIN_PROMPT +
+        "\nANÁLISE TÉCNICA:\n" + tech +
+        "\nANÁLISE PRODUTO:\n" + product
+    )
+    return final
+
+================================================================================
+FILE: app\ai\providers\base.py
+================================================================================
+class AIProvider:
+    def generate(self, prompt: str) -> str:
+        raise NotImplementedError
+
+================================================================================
+FILE: app\ai\providers\gemini.py
+================================================================================
+import google.generativeai as genai
+from app.config import GEMINI_API_KEY
+from app.ai.providers.base import AIProvider
+
+genai.configure(api_key=GEMINI_API_KEY)
+
+class GeminiProvider(AIProvider):
+    def generate(self, prompt: str) -> str:
+        model = genai.GenerativeModel("gemini-pro")
+        response = model.generate_content(prompt)
+        return response.text.strip()
+
+================================================================================
+FILE: app\ai\providers\openai.py
+================================================================================
+from openai import OpenAI
+from app.config import OPENAI_API_KEY
+from app.ai.providers.base import AIProvider
+
+client = OpenAI(api_key=OPENAI_API_KEY)
+
+class OpenAIProvider(AIProvider):
+    def generate(self, prompt: str) -> str:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content.strip()
+
+================================================================================
+FILE: app\auth\routes.py
+================================================================================
+from fastapi import APIRouter, Request, Form
+from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
+
+router = APIRouter()
+templates = Jinja2Templates(directory="templates")
+
+@router.get("/login")
+def login_page(request: Request):
+    return templates.TemplateResponse(
+        "login.html",
+        {"request": request}
+    )
+
+@router.post("/login")
+def login(
+    email: str = Form(...),
+    password: str = Form(...)
+):
+    # autenticação real entra depois
+    return RedirectResponse(
+        url="/dashboard",
+        status_code=302
+    )
+================================================================================
+FILE: app\auth\security.py
+================================================================================
+from datetime import datetime, timedelta
+from jose import jwt
+
+SECRET_KEY = "CHANGE_THIS_SECRET"
+ALGORITHM = "HS256"
+EXPIRE_MINUTES = 60
+
+def create_access_token(data: dict):
+    payload = data.copy()
+    payload["exp"] = datetime.utcnow() + timedelta(minutes=EXPIRE_MINUTES)
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+================================================================================
+FILE: app\auth\__init__.py
+================================================================================
+from .routes import router
+================================================================================
+FILE: app\dashboard\routes.py
+================================================================================
+from fastapi import APIRouter, Request
+from fastapi.templating import Jinja2Templates
+from datetime import datetime
+import requests
+
+router = APIRouter()
+templates = Jinja2Templates(directory="templates")
+
+@router.get("/dashboard")
+def dashboard(request: Request):
+    ip = request.client.host
+
+    try:
+        geo = requests.get(f"https://ipapi.co/{ip}/json/").json()
+    except:
+        geo = {}
+
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {
+            "request": request,
+            "ip": ip,
+            "city": geo.get("city", "Unknown"),
+            "country": geo.get("country_name", "Unknown"),
+            "org": geo.get("org", "Unknown"),
+            "datetime": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+            "vpn_status": "OFF"
+        }
+    )
+================================================================================
+FILE: app\dashboard\__init__.py
+================================================================================
+from .routes import router
+================================================================================
+FILE: app\database\automation_repository.py
+================================================================================
+import sqlite3
+
+DB_PATH = "app/database/database.db"
+
+
+def init_automation_table():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS automation_config (
+            id INTEGER PRIMARY KEY,
+            enabled BOOLEAN,
+            times TEXT
+        )
+    """)
+
+    cursor.execute("""
+        INSERT OR IGNORE INTO automation_config (id, enabled, times)
+        VALUES (1, 0, '')
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+def save_config(enabled, times):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        UPDATE automation_config
+        SET enabled = ?, times = ?
+        WHERE id = 1
+    """, (enabled, ",".join(times)))
+
+    conn.commit()
+    conn.close()
+
+================================================================================
+FILE: app\database\base.py
+================================================================================
+from app.database.session import Base, engine
+from app.database.models.user import User
+
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import DeclarativeBase
+
+class Base(AsyncAttrs, DeclarativeBase):
+    pass
+================================================================================
+FILE: app\database\client_repository.py
+================================================================================
+from app.database.db import get_connection
+from passlib.hash import bcrypt
+
+def init_clients_table():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS clients (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            email TEXT UNIQUE,
+            password_hash TEXT,
+            plan TEXT
+        )
+    """)
+
+    # 👑 cria admin se não existir
+    cursor.execute(
+        "SELECT id FROM clients WHERE email = ?",
+        ("admin@admin.com",)
+    )
+
+    if not cursor.fetchone():
+        cursor.execute("""
+            INSERT INTO clients (name, email, password_hash, plan)
+            VALUES (?, ?, ?, ?)
+        """, (
+            "Administrador",
+            "admin@admin.com",
+            bcrypt.hash("123456"),
+            "admin"
+        ))
+
+    conn.commit()
+    conn.close()
+
+from app.database.db import get_session
+from app.database.models import Client
+from app.auth.security import hash_password
+
+
+def ensure_admin_exists():
+    session = get_session()
+
+    try:
+        admin = session.query(Client).filter(
+            Client.email == "admin@admin.com"
+        ).first()
+
+        if not admin:
+            admin = Client(
+                name="Administrador",
+                email="admin@admin.com",
+                password=hash_password("123456"),
+                plan="admin",
+                active=True
+            )
+            session.add(admin)
+            session.commit()
+            print("[BOOTSTRAP] Admin criado com sucesso")
+        else:
+            print("[BOOTSTRAP] Admin já existe")
+
+    finally:
+        session.close()
+
+def create_admin_if_not_exists():
+    db = SessionLocal()
+    try:
+        admin = db.query(Client).filter(Client.email == "admin@admin.com").first()
+
+        if not admin:
+            admin = Client(
+                name="Administrador",
+                email="admin@admin.com",
+                password=get_password_hash("123456"),
+                plan="admin"
+            )
+            db.add(admin)
+            db.commit()
+            print("✅ Admin criado com sucesso")
+        else:
+            print("ℹ️ Admin já existe")
+
+    finally:
+        db.close()
+================================================================================
+FILE: app\database\db.py
+================================================================================
+import sqlite3
+
+DB_NAME = "database.db"
+
+def get_connection():
+    conn = sqlite3.connect(DB_NAME, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+================================================================================
+FILE: app\database\post_repository.py
+================================================================================
+import sqlite3
+from datetime import datetime
+
+DB_PATH = "app/database/database.db"
+
+
+def init_posts_table():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            client_id INTEGER,
+            content TEXT,
+            source TEXT,
+            mode TEXT,
+            created_at TEXT
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+def save_post(client_id, content, source, mode):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO posts (client_id, content, source, mode, created_at)
+        VALUES (?, ?, ?, ?, ?)
+    """, (client_id, content, source, mode, datetime.now().isoformat()))
+
+    conn.commit()
+    conn.close()
+
+
+def list_posts(client_id, limit=50):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT content, source, mode, created_at
+        FROM posts
+        WHERE client_id = ?
+        ORDER BY id DESC
+        LIMIT ?
+    """, (client_id, limit))
+
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
+================================================================================
+FILE: app\database\seed_admin.py
+================================================================================
+from app.database.user_repository import create_table, create_user
+
+create_table()
+create_user("admin@prosolution.com", "admin123")
+print("✅ Admin criado")
+
+================================================================================
+FILE: app\database\session.py
+================================================================================
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+from app.config import settings
+
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    echo=settings.DB_ECHO,
+    pool_pre_ping=True
+)
+
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session
+================================================================================
+FILE: app\database\user_repository.py
+================================================================================
+from app.database.db import get_connection
+from passlib.context import CryptContext
+
+pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def create_table():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+def create_user(email: str, password: str):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO users (email, password) VALUES (?, ?)",
+        (email, pwd.hash(password))
+    )
+    conn.commit()
+    conn.close()
+
+def authenticate(email: str, password: str):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+    user = cursor.fetchone()
+    conn.close()
+
+    if user and pwd.verify(password, user["password"]):
+        return dict(user)
+    return None
+
+================================================================================
+FILE: app\database\__init__.py
+================================================================================
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///./prosolution.db"
+)
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False}
+    if DATABASE_URL.startswith("sqlite")
+    else {}
+)
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+================================================================================
+FILE: app\database\app\database\models\user.py
+================================================================================
+import uuid
+from datetime import datetime
+from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy.dialects.postgresql import UUID
+from app.database.base import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+================================================================================
+FILE: app\database\migrations\env.py
+================================================================================
+from app.database.session import engine
+from app.database.base import Base
+target_metadata = Base.metadata
+
+def run_migrations_online():
+    from alembic import context
+    connectable = engine.sync_engine
+    with connectable.connect() as connection:
+        context.configure(connection=connection, target_metadata=target_metadata)
+        with context.begin_transaction():
+            context.run_migrations()
+================================================================================
+FILE: app\database\models\post.py
+================================================================================
+from sqlalchemy import String, Text, DateTime
+from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime
+from app.database.base import Base
+
+class InstagramPost(Base):
+    __tablename__ = "instagram_posts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    instagram_id: Mapped[str] = mapped_column(String(50))
+    image_url: Mapped[str] = mapped_column(Text)
+    caption: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow
+    )
+================================================================================
+FILE: app\database\models\user.py
+================================================================================
+from sqlalchemy import Column, Integer, String
+from app.database.session import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+================================================================================
+FILE: app\database\models\__init__.py
+================================================================================
+ 
+================================================================================
+FILE: app\database\repositories\post_repository.py
+================================================================================
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database.models.post import InstagramPost
+
+async def save_post(
+    db: AsyncSession,
+    instagram_id: str,
+    image_url: str,
+    caption: str
+):
+    post = InstagramPost(
+        instagram_id=instagram_id,
+        image_url=image_url,
+        caption=caption
+    )
+    db.add(post)
+    await db.commit()
+    await db.refresh(post)
+    return post
+================================================================================
+FILE: app\database\repositories\user_repo.py
+================================================================================
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, update, delete
+from app.database.models.user import User
+
+class UserRepository:
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def create(self, user_data: dict) -> User:
+        user = User(**user_data)
+        self.session.add(user)
+        await self.session.commit()
+        await self.session.refresh(user)
+        return user
+
+    async def get_by_id(self, user_id: str):
+        result = await self.session.execute(select(User).filter_by(id=user_id))
+        return result.scalars().first()
+
+    async def get_by_email(self, email: str):
+        result = await self.session.execute(select(User).filter_by(email=email))
+        return result.scalars().first()
+
+    async def list_all(self):
+        result = await self.session.execute(select(User))
+        return result.scalars().all()
+
+    async def update(self, user_id: str, data: dict):
+        await self.session.execute(update(User).where(User.id == user_id).values(**data))
+        await self.session.commit()
+        return await self.get_by_id(user_id)
+
+    async def delete(self, user_id: str):
+        await self.session.execute(delete(User).where(User.id == user_id))
+        await self.session.commit()
+================================================================================
+FILE: app\database\repositories\__init__.py
+================================================================================
+ 
+================================================================================
+FILE: app\instagram\client.py
+================================================================================
+import requests
+from app.config import settings
+
+# 🔹 Usa o objeto settings para acessar as variáveis do .env
+BASE_URL = f"{settings.INSTAGRAM_BASE_URL}/{settings.INSTAGRAM_API_VERSION}"
+
+
+def create_media(image_url: str, caption: str) -> str:
+    """
+    Cria um media object (imagem + legenda) no Instagram Graph API.
+    Retorna o ID de criação (creation_id) para ser publicado depois.
+    """
+    url = f"{BASE_URL}/{settings.INSTAGRAM_BUSINESS_ACCOUNT_ID}/media"
+
+    payload = {
+        "image_url": image_url,
+        "caption": caption,
+        "access_token": settings.INSTAGRAM_ACCESS_TOKEN,
+    }
+
+    response = requests.post(
+        url,
+        data=payload,  # application/x-www-form-urlencoded
+        timeout=30,
+    )
+
+    # ⚠️ Trata erro explícito da Graph API
+    if response.status_code != 200:
+        try:
+            error_info = response.json().get("error", {})
+            raise RuntimeError(
+                f"Instagram error {error_info.get('code')}: {error_info.get('message')}"
+            )
+        except ValueError:
+            raise RuntimeError(
+                f"Instagram error {response.status_code}: {response.text}"
+            )
+
+    data = response.json()
+    creation_id = data.get("id")
+
+    if not creation_id:
+        raise RuntimeError(f"Instagram response sem id: {data}")
+
+    return creation_id
+
+
+def publish_media(creation_id: str) -> dict:
+    """
+    Publica o media object criado anteriormente.
+    """
+    url = f"{BASE_URL}/{settings.INSTAGRAM_BUSINESS_ACCOUNT_ID}/media_publish"
+
+    response = requests.post(
+        url,
+        data={
+            "creation_id": creation_id,
+            "access_token": settings.INSTAGRAM_ACCESS_TOKEN,
+        },
+        timeout=30,
+    )
+
+    response.raise_for_status()
+    return response.json()
+================================================================================
+FILE: app\instagram\post.py
+================================================================================
+from fastapi import APIRouter, HTTPException
+from app.instagram.schemas import InstagramPostRequest
+from app.instagram.service import publish_image
+
+router = APIRouter()
+
+
+@router.post("/post")
+def instagram_post(data: InstagramPostRequest):
+    try:
+        return publish_image(
+            image_url=str(data.image_url),  # 👈 conversão correta
+            caption=data.caption,
+        )
+    except Exception as e:
+        # Retorna o erro real (sem mascarar)
+        raise HTTPException(status_code=500, detail=str(e))
+================================================================================
+FILE: app\instagram\router.py
+================================================================================
+from fastapi import APIRouter
+from app.instagram.post import router as post_router
+
+router = APIRouter(
+    prefix="/instagram",
+    tags=["Instagram"]
+)
+
+# inclui o POST /instagram/post
+router.include_router(post_router)
+================================================================================
+FILE: app\instagram\schemas.py
+================================================================================
+from pydantic import BaseModel, HttpUrl, Field
+
+class InstagramPostSchema(BaseModel):
+    image_url: HttpUrl = Field(..., example="https://example.com/image.jpg")
+    caption: str = Field(..., min_length=1, max_length=2200)
+
+    class Config:
+        extra = "forbid"  # evita campos inválidos
+
+from pydantic import BaseModel, HttpUrl
+
+
+class InstagramPostRequest(BaseModel):
+    image_url: HttpUrl
+    caption: str
+================================================================================
+FILE: app\instagram\service.py
+================================================================================
+import time
+import requests
+from app.instagram.client import create_media, publish_media
+from app.config import (
+    INSTAGRAM_ACCESS_TOKEN,
+    INSTAGRAM_BASE_URL,
+    INSTAGRAM_API_VERSION,
+)
+
+BASE_URL = f"{INSTAGRAM_BASE_URL}/{INSTAGRAM_API_VERSION}"
+
+
+def publish_image(image_url: str, caption: str) -> dict:
+    creation_id = create_media(image_url, caption)
+
+    status_url = f"{BASE_URL}/{creation_id}"
+
+    for _ in range(10):
+        response = requests.get(
+            status_url,
+            params={
+                "fields": "status_code",
+                "access_token": INSTAGRAM_ACCESS_TOKEN,
+            },
+            timeout=10,
+        )
+        response.raise_for_status()
+
+        status = response.json().get("status_code")
+        if status == "FINISHED":
+            break
+        if status == "ERROR":
+            raise RuntimeError("Instagram retornou ERROR ao processar a mídia")
+
+        time.sleep(1)
+    else:
+        raise TimeoutError("Timeout aguardando processamento da mídia")
+
+    return publish_media(creation_id)
+================================================================================
+FILE: app\instagram\test_token.py
+================================================================================
+import requests
+from app.config import INSTAGRAM_ACCESS_TOKEN
+
+url = "https://graph.facebook.com/v19.0/me"
+params = {
+    "access_token": INSTAGRAM_ACCESS_TOKEN
+}
+
+r = requests.get(url, params=params)
+print(r.json())
+================================================================================
+FILE: app\instagram\__init__.py
+================================================================================
+
+================================================================================
+FILE: app\payments\mercadopago_client.py
+================================================================================
+import httpx
+from app.config import settings
+
+
+class MercadoPagoClient:
+    def __init__(self):
+        self.base_url = "https://api.mercadopago.com"
+        self.headers = {
+            "Authorization": f"Bearer {settings.MERCADO_PAGO_ACCESS_TOKEN}",
+            "Content-Type": "application/json",
+        }
+
+    async def create_payment(self, payload: dict):
+        async with httpx.AsyncClient(timeout=20) as client:
+            response = await client.post(
+                f"{self.base_url}/v1/payments",
+                headers=self.headers,
+                json=payload,
+            )
+
+        return response
+================================================================================
+FILE: app\payments\routes.py
+================================================================================
+from fastapi import APIRouter
+from app.payments.schemas import PixPaymentSchema
+from app.payments.service import create_pix_payment
+
+router = APIRouter(prefix="/payments", tags=["Payments"])
+
+
+@router.post("/pix")
+async def create_pix_payment_route(data: PixPaymentSchema):
+    return await create_pix_payment(
+        amount=data.amount,
+        description=data.description,
+        email=data.email,
+    )
+================================================================================
+FILE: app\payments\schemas.py
+================================================================================
+from pydantic import BaseModel, EmailStr, Field
+
+
+class PixPaymentSchema(BaseModel):
+    amount: float = Field(..., gt=0)
+    description: str = Field(..., min_length=3)
+    email: EmailStr
+================================================================================
+FILE: app\payments\service.py
+================================================================================
+from fastapi import HTTPException
+from app.payments.mercadopago_client import MercadoPagoClient
+
+client = MercadoPagoClient()
+
+
+async def create_pix_payment(amount: float, description: str, email: str):
+    payload = {
+        "transaction_amount": amount,
+        "description": description,
+        "payment_method_id": "pix",
+        "payer": {
+            "email": email
+        }
+    }
+
+    response = await client.create_payment(payload)
+    data = response.json()
+
+    if response.status_code not in (200, 201):
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "stage": "mercado_pago_payment",
+                "error": data
+            }
+        )
+
+    transaction_data = data.get("point_of_interaction", {}).get("transaction_data", {})
+
+    return {
+        "payment_id": data.get("id"),
+        "status": data.get("status"),
+        "qr_code": transaction_data.get("qr_code"),
+        "qr_code_base64": transaction_data.get("qr_code_base64"),
+    }
+================================================================================
+FILE: app\payments\__init__.py
+================================================================================
+ 
+================================================================================
+FILE: app\scheduler\post_runner.py
+================================================================================
+from app.ai.content_generator import generate_post
+from app.database.post_repository import save_post
+
+
+def run_post(client_id=None, manual=False):
+    content = generate_post()
+    source = "fallback" if "fallback" in content.lower() else "openai"
+    mode = "manual" if manual else "automatic"
+
+    if client_id:
+        save_post(client_id, content, source, mode)
+
+    print("[POST]", content)
+
+================================================================================
+FILE: app\scheduler\scheduler.py
+================================================================================
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+scheduler = AsyncIOScheduler()
+
+def start_scheduler():
+    scheduler.start()
+================================================================================
+FILE: app\scheduler\__init__.py
+================================================================================
+
+================================================================================
+FILE: app\utils\security.py
+================================================================================
+import requests
+
+API_KEY = "SUA_CHAVE_IPQUALITYSCORE"
+
+def is_vpn(ip: str) -> bool:
+    url = f"https://ipqualityscore.com/api/json/ip/{API_KEY}/{ip}"
+    data = requests.get(url, timeout=5).json()
+
+    return any([
+        data.get("vpn"),
+        data.get("proxy"),
+        data.get("tor"),
+        data.get("hosting")
+    ])
+
+================================================================================
+FILE: static\css\__init__.py
+================================================================================
+
+================================================================================
+PROJECT SUMMARY
+================================================================================
+Total files included: 66
+Total lines of code/text: 1395

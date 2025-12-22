@@ -1,24 +1,9 @@
-from fastapi import APIRouter, Request, Form
-from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
 
-router = APIRouter()
-templates = Jinja2Templates(directory="templates")
+from fastapi import APIRouter, Depends
+from app.auth.security import get_current_user
 
-@router.get("/login")
-def login_page(request: Request):
-    return templates.TemplateResponse(
-        "login.html",
-        {"request": request}
-    )
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post("/login")
-def login(
-    email: str = Form(...),
-    password: str = Form(...)
-):
-    # autenticação real entra depois
-    return RedirectResponse(
-        url="/dashboard",
-        status_code=302
-    )
+@router.get("/me")
+async def me(user=Depends(get_current_user)):
+    return user
