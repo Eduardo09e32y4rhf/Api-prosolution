@@ -1,0 +1,16 @@
+# Ambiente
+.env
+.venv
+venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Banco local (se quiser recriar no deploy)
+*.db
+
+# IDE
+.vscode/
+.idea/
