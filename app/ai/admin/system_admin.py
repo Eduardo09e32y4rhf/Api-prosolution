@@ -1,17 +1,16 @@
-from app.ai.providers.openai import OpenAIProvider
-from app.ai.providers.gemini import GeminiProvider
-from app.ai.admin.prompts import SYSTEM_ADMIN_PROMPT
 
-openai = OpenAIProvider()
-gemini = GeminiProvider()
+from datetime import datetime
+from app.database.session import AsyncSessionLocal
+from app.database.models.ai_log import AILog
 
-def evaluate_system(system_snapshot: dict) -> str:
-    tech = openai.generate(f"Analise tecnicamente:\n{system_snapshot}")
-    product = gemini.generate(f"Avalie produto e UX:\n{system_snapshot}")
+async def evaluate_system():
+    return {
+        "status": "ok",
+        "checked_at": datetime.utcnow().isoformat()
+    }
 
-    final = openai.generate(
-        SYSTEM_ADMIN_PROMPT +
-        "\nANÁLISE TÉCNICA:\n" + tech +
-        "\nANÁLISE PRODUTO:\n" + product
-    )
-    return final
+async def log_ai_action(action: str):
+    async with AsyncSessionLocal() as session:
+        log = AILog(action=action)
+        session.add(log)
+        await session.commit()

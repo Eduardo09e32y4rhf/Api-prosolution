@@ -1,116 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prosolution | Dashboard</title>
-  <link rel="stylesheet" href="/static/css/style.css">
+    <title>Prosolution IA - Dashboard</title>
 </head>
 <body>
+    <h1>📊 Dashboard Prosolution IA</h1>
 
-<div class="layout">
+    <ul id="metrics"></ul>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="logo">🚀 Prosolution</div>
-
-    <nav aria-label="Main navigation">
-      <a class="active" href="#">Dashboard</a>
-      <a href="#">Agenda</a>
-      <a href="#">Posts</a>
-      <a href="#">Analytics</a>
-      <a href="#">AI Trends</a>
-      <a href="#">Settings</a>
-    </nav>
-
-    <button class="upgrade" aria-label="Upgrade your plan">Upgrade Plan</button>
-
-    <div class="profile">
-      <div class="avatar">👤</div>
-      <div>
-        <strong>Eduardo Silva</strong>
-        <span>@eduardosilva</span>
-      </div>
-    </div>
-  </aside>
-
-  <!-- MAIN CONTENT -->
-  <main class="content">
-
-    <!-- HEADER -->
-    <header class="topbar">
-      <h1>Welcome, Eduardo!</h1>
-      <button class="new-post" aria-label="Create a new post">+ New Post</button>
-    </header>
-
-    <!-- STATUS -->
-    <section class="status success">
-      ✅ Mercado Pago Integration Active!
-    </section>
-
-    <!-- DASHBOARD GRID -->
-    <section class="grid">
-
-      <!-- CALENDAR -->
-      <div class="card large">
-        <h3>Monthly Content Calendar</h3>
-        <div class="fake-chart" id="calendarChart">📊 Chart Preview</div>
-      </div>
-
-      <!-- AI TRENDS -->
-      <div class="card">
-        <h3>AI Trends in Marketing</h3>
-        <ul>
-          <li>🔥 Fitness Trends 2025</li>
-          <li>🥗 Healthy Recipes</li>
-          <li>📈 Growth Hacks</li>
-        </ul>
-        <button class="action">Generate Ideas</button>
-      </div>
-
-      <!-- SCHEDULED POSTS -->
-      <div class="card">
-        <h3>Scheduled Instagram Posts</h3>
-
-        <div class="post">
-          <img src="https://via.placeholder.com/60" alt="Marketing tips post">
-          <div>
-            <strong>Instagram marketing tips</strong>
-            <span>Apr 30 - 10:00</span>
-          </div>
-          <span class="badge">Scheduled</span>
-        </div>
-
-        <div class="post">
-          <img src="https://via.placeholder.com/60" alt="Workout post">
-          <div>
-            <strong>Workout boost</strong>
-            <span>Apr 30 - 14:00</span>
-          </div>
-          <span class="badge">Scheduled</span>
-        </div>
-
-      </div>
-
-      <!-- ANALYTICS -->
-      <div class="card">
-        <h3>Post Performance</h3>
-        <div class="fake-chart" id="analyticsChart">📈 Analytics Preview</div>
-      </div>
-
-      <!-- MERCADO PAGO -->
-      <div class="card full">
-        <h3>Mercado Pago Integration</h3>
-        <p>Your Mercado Pago integration is active and connected.</p>
-        <button class="action">View Details</button>
-      </div>
-
-    </section>
-  </main>
-</div>
-
-<!-- Optional JS (for charts or live updates) -->
-<script src="/static/js/terminal.js"></script>
-
+    <script>
+        fetch("/dashboard/metrics")
+            .then(res => res.json())
+            .then(data => {
+                const el = document.getElementById("metrics")
+                el.innerHTML = `
+                    <li>📸 Total de Posts: ${data.posts_total}</li>
+                    <li>💳 Total de Pagamentos: ${data.payments_total}</li>
+                    <li>💰 Faturamento Total: R$ ${data.revenue_total}</li>
+                    <li>🕒 Último Post: ${data.last_post || "—"}</li>
+                    <li>🤖 Última ação da IA: ${data.last_ai_action || "—"}</li>
+                `
+            })
+    </script>
 </body>
 </html>

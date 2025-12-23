@@ -3,10 +3,10 @@ from fastapi.templating import Jinja2Templates
 from datetime import datetime
 import requests
 
-router = APIRouter()
+router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 templates = Jinja2Templates(directory="templates")
 
-@router.get("/dashboard")
+@router.get("/")
 def dashboard(request: Request):
     ip = request.client.host
 

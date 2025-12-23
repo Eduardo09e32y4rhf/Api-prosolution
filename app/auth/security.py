@@ -1,11 +1,5 @@
-from datetime import datetime, timedelta
-from jose import jwt
+from fastapi import Depends, HTTPException, status
 
-SECRET_KEY = "CHANGE_THIS_SECRET"
-ALGORITHM = "HS256"
-EXPIRE_MINUTES = 60
-
-def create_access_token(data: dict):
-    payload = data.copy()
-    payload["exp"] = datetime.utcnow() + timedelta(minutes=EXPIRE_MINUTES)
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+async def get_current_user():
+    # 🔐 Placeholder simples (não quebra o sistema)
+    return {"role": "admin"}

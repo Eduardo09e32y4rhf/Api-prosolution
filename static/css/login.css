@@ -1,133 +1,45 @@
-/* =======================
-   PROSOLUTION LOGIN 2.0
-   ======================= */
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: "Inter", sans-serif;
-}
 
 body {
-  background: #f4f6f8;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  flex-direction: column;
-  color: #111827;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-/* CONTAINER */
-.login-container {
-  width: 100%;
-  max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
+.login-card {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 360px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
-/* BOX */
-.login-box {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 40px 36px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  width: 100%;
-  text-align: center;
+.login-card h2 {
+    margin-bottom: 20px;
 }
 
-.logo {
-  font-weight: 700;
-  font-size: 1.5rem;
-  color: #0f172a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 20px;
+.login-card input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }
 
-.logo span {
-  color: #22c55e;
+.login-card button {
+    width: 100%;
+    padding: 12px;
+    background: #22c55e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-/* TITLES */
-.login-box h2 {
-  font-size: 1.25rem;
-  margin-bottom: 6px;
-}
-
-.login-box p {
-  color: #6b7280;
-  font-size: 0.9rem;
-  margin-bottom: 28px;
-}
-
-/* FORM */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-input {
-  padding: 14px 16px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
-  font-size: 0.95rem;
-  color: #111827;
-  transition: all 0.2s ease;
-}
-
-input:focus {
-  outline: none;
-  border-color: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
-}
-
-/* BUTTON */
-button {
-  padding: 14px;
-  border-radius: 10px;
-  background: #22c55e;
-  border: none;
-  color: white;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-button:hover {
-  background: #16a34a;
-  box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
-}
-
-/* ERROR MESSAGE */
-.error {
-  margin-top: 14px;
-  color: #dc2626;
-  background: #fee2e2;
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 0.85rem;
-  display: inline-block;
-}
-
-/* FOOTER */
-footer {
-  margin-top: 30px;
-  font-size: 0.8rem;
-  color: #6b7280;
-}
-
-/* RESPONSIVE */
-@media (max-width: 480px) {
-  .login-box {
-    padding: 30px 20px;
-  }
+.login-card button:hover {
+    background: #16a34a;
 }
