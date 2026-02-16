@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+:root {
+  --bg: #0d0d0d;
+  --text: #f9f9f9;
+  --highlight: #820AD1;
+  --glass: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+a {
+  text-decoration: none;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 24px;
+}
+
+.header {
+  background: rgba(13,13,13,0.95);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.logo span {
+  color: var(--highlight);
+}
+
+.btn-cta {
+  background: linear-gradient(135deg, var(--highlight), #4A00E0);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.btn-cta:hover {
+  opacity: 0.9;
+}
+
+.btn-outline {
+  border: 1px solid var(--text);
+  color: var(--text);
+  padding: 12px 24px;
+  border-radius: 50px;
+}
+
+section {
+  padding: 100px 24px;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 2.8rem;
+  margin-bottom: 20px;
+}
+
+.hero span {
+  color: var(--highlight);
+}
+
+.hero p {
+  max-width: 600px;
+  margin: 0 auto 30px;
+  color: #aaa;
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 60px;
+}
+
+.card {
+  background: var(--glass);
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+}
+
+.card i {
+  font-size: 2rem;
+  color: var(--highlight);
+  margin-bottom: 12px;
+  display: block;
+}
+
+.call-to-action h2 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+}
+
+.call-to-action p {
+  color: #bbb;
+  margin-bottom: 24px;
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 40px;
+  text-align: center;
+  color: #777;
+}
+
+.whatsapp {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #25d366;
+  color: white;
+  font-size: 1.8rem;
+  padding: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 20px #25d366;
+  z-index: 999;
+  transition: transform 0.3s;
+}
+
+.whatsapp:hover {
+  transform: scale(1.1);
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
