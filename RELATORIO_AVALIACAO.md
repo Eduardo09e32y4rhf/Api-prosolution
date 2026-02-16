@@ -12,18 +12,20 @@ O projeto demonstra uma base sólida e moderna para o desenvolvimento de APIs co
 
 ## 🚨 Vulnerabilidades Críticas (Pontos de Atenção)
 
-A análise revelou falhas graves de segurança que comprometem a integridade da aplicação em um ambiente de produção:
+A análise detalhada revelou falhas graves de segurança e arquitetura que comprometem a integridade da aplicação em um ambiente de produção:
 
 1.  **Bypass Total de Autenticação**:
     - A rota de login (`app/auth/routes.py`) **não verifica a senha fornecida**. Ela apenas checa se o e-mail existe no banco de dados (`if not user: ...`). Se o usuário existir, o login é considerado válido, independentemente da senha digitada.
-    - O redirecionamento ocorre sem a emissão de nenhum token de sessão ou cookie seguro.
+    - O redirecionamento para o dashboard ocorre sem a emissão de nenhum token de sessão ou cookie seguro.
 
-2.  **Falta de Autorização nas Rotas**:
+2.  **Inconsistência de Banco de Dados e Schema (Critical)**:
+    - **Separação de Dados**: O script de seed (`seed_admin.py`) e o repositório legado (`app/database/user_repository.py`) escrevem em um banco de dados síncrono (`database.db`). No entanto, a aplicação principal (`app/auth/routes.py`, `app/database/repositories/user_repo.py`) lê de um banco de dados assíncrono (`prosolution.db` via `sqlite+aiosqlite`).
+    - **Consequência**: Usuários criados via seed **não existem** para a aplicação de autenticação. O login falhará sempre (User Not Found) ou, se existissem, passaria sem senha.
+    - **Schema Divergente**: O modelo `User` em `app/models.py` define uma coluna `password`, enquanto `app/database/models/user.py` define `password_hash`. Isso causará erros de integridade ou mapeamento ao tentar ler ou escrever dados entre os diferentes contextos.
+
+3.  **Falta de Autorização nas Rotas**:
     - A rota do dashboard (`app/dashboard/routes.py`) é pública. Não existe middleware ou dependência (`Depends(get_current_user)`) que valide se o usuário está logado. Qualquer pessoa com a URL pode acessar os dados sensíveis.
     - A função `get_current_user` em `app/auth/security.py` é um **mock hardcoded** que retorna sempre `{ "role": "admin" }`, o que permitiria acesso irrestrito se fosse utilizada.
-
-3.  **Armazenamento de Senhas**:
-    - Embora o modelo de usuário (`User`) tenha um campo para senha, não há evidência clara de hashing (como `bcrypt`) sendo aplicado no fluxo de criação ou login no código analisado (`seed_admin.py` ou `auth/routes.py`).
 
 4.  **Operações Bloqueantes em Rotas Síncronas**:
     - A rota do dashboard utiliza a biblioteca `requests` (síncrona) para chamar a API de geolocalização (`ipapi.co`). Em uma aplicação assíncrona como FastAPI, isso pode bloquear a thread de execução e degradar a performance sob carga.
@@ -35,25 +37,27 @@ A análise revelou falhas graves de segurança que comprometem a integridade da 
 
 Para elevar o nível do projeto e corrigir as falhas apontadas, sugere-se:
 
-1.  **Implementar Autenticação JWT Real**:
-    - Utilizar a biblioteca `python-jose` para gerar e validar tokens JWT.
-    - Implementar hashing de senhas com `passlib[bcrypt]` antes de salvar no banco e ao verificar no login.
-    - Criar uma dependência `get_current_user` que decodifique o token JWT e valide o usuário no banco.
+1.  **Unificar e Corrigir a Camada de Dados**:
+    - Migrar todo o acesso a dados para usar **apenas** o contexto assíncrono (`SQLAlchemy` + `aiosqlite`).
+    - Remover `app/database/db.py` e `app/database/user_repository.py` (versão síncrona).
+    - Atualizar `seed_admin.py` para usar `AsyncSession` e inserir no banco correto (`prosolution.db`).
+    - Padronizar o modelo de `User` para usar `password_hash` e remover a duplicidade em `app/models.py`.
 
-2.  **Proteger Rotas Sensíveis**:
+2.  **Implementar Autenticação Real**:
+    - Corrigir a rota de login para verificar o hash da senha usando `bcrypt`.
+    - Implementar a emissão de tokens JWT seguros.
+    - Criar middleware ou dependência para proteger rotas privadas.
+
+3.  **Proteger Rotas Sensíveis**:
     - Decorar todas as rotas privadas (como `/dashboard`) com `Depends(get_current_user)`.
     - Garantir que apenas usuários autenticados (e com permissão adequada) possam acessar recursos protegidos.
 
-3.  **Adotar Clientes HTTP Assíncronos**:
+4.  **Adotar Clientes HTTP Assíncronos**:
     - Substituir `requests` por `httpx` (async) para chamadas externas, aproveitando o event loop do `asyncio`.
 
-4.  **Criar Testes Automatizados**:
+5.  **Criar Testes Automatizados**:
     - Adicionar uma pasta `tests/` com testes cobrindo os cenários de sucesso e falha (login correto, senha errada, acesso sem token).
     - Utilizar `pytest` e `httpx` (AsyncClient) para testes de integração da API.
 
-5.  **Refinamento da Estrutura**:
-    - Consolidar os modelos de dados. Atualmente parece haver duplicação ou ambiguidade entre `app/models.py` e `app/database/models/`. Centralize em `app/database/models/`.
-    - Remover arquivos não utilizados ou redundantes na raiz de `app/`.
-
 ---
-**Conclusão**: O projeto tem um "esqueleto" muito bom e utiliza as tecnologias certas, mas a camada de segurança precisa ser completamente reescrita antes de qualquer uso real.
+**Conclusão**: O projeto tem um excelente potencial e estrutura, mas requer correções urgentes na camada de persistência e segurança antes de ser considerado funcional.
