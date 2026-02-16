@@ -1,11 +1,15 @@
 import httpx
-from app.config import OPENAI_API_KEY
+
+from app.config import settings
+
 
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 
 async def generate_with_chatgpt(prompt: str):
+
     headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Authorization": f"Bearer {settings.OPENAI_API_KEY}",
+
         "Content-Type": "application/json"
     }
 

@@ -1,52 +1,231 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Prosolution IA | Automação de Marketing para Instagram</title>
+  <title>Dashboard | Prosolution IA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="static/css/login.css">
+  <link rel="stylesheet" href="static/css/style.css">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
+    /* Dashboard specific overrides */
     body {
-      background: #f9f9fb;
-      color: #111;
-      font-family: 'Poppins', sans-serif;
+        background: radial-gradient(circle at top center, #1a0529, #0d0d0d);
     }
-    .hero h1 span {
-      color: #005eff;
+    .dashboard-container {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
     }
-    .btn-cta {
-      background: linear-gradient(135deg, #005eff, #00e5ff);
-      color: white;
-      font-weight: bold;
+    .sidebar {
+        background: rgba(13, 13, 13, 0.8);
+        border-right: 1px solid var(--border);
+        padding: 24px;
+        backdrop-filter: blur(10px);
     }
-    .btn-outline {
-      border: 2px solid #005eff;
-      color: #005eff;
-      font-weight: bold;
+    .main-content {
+        padding: 40px;
+        overflow-y: auto;
     }
-    .header {
-      background: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        color: #aaa;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: 0.3s;
+        margin-bottom: 8px;
     }
-    .logo span {
-      color: #005eff;
+    .menu-item:hover, .menu-item.active {
+        background: var(--glass);
+        color: white;
+        border: 1px solid var(--border);
     }
-    section {
-      background: white;
-      margin-bottom: 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    .menu-item i {
+        font-size: 1.2rem;
+        color: var(--highlight);
+    }
+    .stat-card {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        padding: 24px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(130, 10, 209, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--highlight);
+        font-size: 1.5rem;
+    }
+    .stat-info h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    .stat-info p {
+        color: #aaa;
+        font-size: 0.9rem;
+    }
+    .action-btn {
+        background: linear-gradient(135deg, #820AD1, #4A00E0);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+    }
+    .action-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--glass);
+        border-radius: 12px;
+        margin-top: auto;
+        border: 1px solid var(--border);
+    }
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--highlight);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
     }
   </style>
 </head>
-
 <body>
 
-<header class="header">
-  <div class="container nav">
-    <div class="logo">PRO<span>SOLUTION</span> IA</div>
-    <a href="/dashboard" class="btn-cta">Acessar Plataforma</a>
-  </div>
-</header>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo" style="margin-bottom: 40px;">PRO<span>SOLUTION</span> IA</div>
+        
+        <nav>
+            <a href="#" class="menu-item active"><i class="ri-dashboard-line"></i> Dashboard</a>
+            <a href="#" class="menu-item"><i class="ri-robot-2-line"></i> IA Generator</a>
+            <a href="#" class="menu-item"><i class="ri-instagram-line"></i> Instagram</a>
+            <a href="#" class="menu-item"><i class="ri-calendar-event-line"></i> Agendamentos</a>
+            <a href="#" class="menu-item"><i class="ri-settings-4-line"></i> Configurações</a>
+        </nav>
+
+        <div style="margin-top: auto; padding-top: 40px;">
+           <div class="user-profile">
+               <div class="avatar">U</div>
+               <div>
+                   <div style="font-weight: 600;">Usuário</div>
+                   <div style="font-size: 0.8rem; color: #aaa;">Plano Pro</div>
+               </div>
+           </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
+            <div>
+                <h1 style="font-size: 1.8rem;">Bem-vindo de volta, <span style="color: var(--highlight);">Mestre</span></h1>
+                <p style="color: #aaa;">Aqui está o resumo da sua automação hoje.</p>
+            </div>
+            <button class="action-btn"><i class="ri-add-line"></i> Novo Post IA</button>
+        </header>
+
+        <!-- Stats -->
+        <div class="grid-3">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="ri-user-follow-line"></i></div>
+                <div class="stat-info">
+                    <h3>12.5k</h3>
+                    <p>Seguidores</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="ri-magic-line"></i></div>
+                <div class="stat-info">
+                    <h3>342</h3>
+                    <p>Posts Gerados</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="ri-money-dollar-circle-line"></i></div>
+                <div class="stat-info">
+                    <h3>R$ 4.2k</h3>
+                    <p>Receita Estimada</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity & AI -->
+        <div class="section-title">
+            <h2>Atividades Recentes</h2>
+        </div>
+
+        <div style="background: var(--glass); border-radius: 16px; border: 1px solid var(--border); overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead style="background: rgba(255,255,255,0.05);">
+                    <tr>
+                        <th style="padding: 16px; color: #aaa;">Atividade</th>
+                        <th style="padding: 16px; color: #aaa;">Status</th>
+                        <th style="padding: 16px; color: #aaa;">Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 16px;">Post Gerado: "Dicas de Marketing"</td>
+                        <td style="padding: 16px;"><span style="color: #00ff99;">Concluído</span></td>
+                        <td style="padding: 16px;">{{ datetime }}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 16px;">Pagamento Recebido (Pix)</td>
+                        <td style="padding: 16px;"><span style="color: #00ff99;">Aprovado</span></td>
+                        <td style="padding: 16px;">Hoje, 14:30</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 16px;">Automação de Direct</td>
+                        <td style="padding: 16px;"><span style="color: #ffaa00;">Em andamento</span></td>
+                        <td style="padding: 16px;">Agora</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>
+
