@@ -12,8 +12,16 @@ from app.payments.webhooks import router as payments_webhook_router
 from app.database.base import init_db
 from app.database.session import get_db
 from app.database.repositories.user_repo import UserRepository
+from fastapi import HTTPException
+from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 
 app = FastAPI(title="Prosolution API")
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    if exc.status_code == 401 and request.url.path.startswith("/dashboard"):
+        return RedirectResponse(url="/", status_code=302)
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 # === STARTUP ===
 @app.on_event("startup")

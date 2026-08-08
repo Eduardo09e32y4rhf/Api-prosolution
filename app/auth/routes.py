@@ -7,6 +7,25 @@ from app.security import verify_password, create_token
 
 router = APIRouter(tags=["Auth"])
 
+@router.post("/register")
+async def register(
+    email: str = Form(...),
+    password: str = Form(...),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.security import hash_password
+    repo = UserRepository(db)
+    existing_user = await repo.get_by_email(email)
+    
+    if existing_user:
+        return RedirectResponse("/?error=Email+já+cadastrado", status_code=302)
+        
+    new_user = await repo.create_user({"email": email, "password_hash": hash_password(password)})
+    token = create_token({"sub": new_user.email, "plan": "free"})
+    resp = RedirectResponse("/dashboard", status_code=302)
+    resp.set_cookie("token", token, httponly=True, secure=True, samesite="lax")
+    return resp
+
 @router.post("/login")
 async def login(
     email: str = Form(...),

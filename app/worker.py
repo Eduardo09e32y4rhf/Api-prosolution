@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from app.database.session import SessionLocal
+from app.database.session import AsyncSessionLocal
 from app.database.models.post import Post
 from app.database.models.brand_profile import BrandProfile
 from app.instagram.service import InstagramService
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 async def publish_scheduled_posts():
     """Busca posts agendados que já passaram da hora e tenta publicar no Instagram."""
-    async with SessionLocal() as db:
+    async with AsyncSessionLocal() as db:
         now = datetime.utcnow()
         # Busca todos os posts 'scheduled' onde a data de agendamento é <= agora
         posts = (await db.execute(
