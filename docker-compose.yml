@@ -6,7 +6,7 @@ services:
     container_name: prosolution_web
     restart: always
     ports:
-      - "8000:8000"
+      - "3000:3000"
     volumes:
       - .:/app
     environment:
