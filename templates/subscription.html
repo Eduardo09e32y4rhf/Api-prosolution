@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Assinatura | Prosolution IA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #090d16;
+      --bg-surface: #111827;
+      --bg-card: rgba(23, 32, 51, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(168, 85, 247, 0.4);
+      --primary: #9333ea;
+      --primary-hover: #a855f7;
+      --accent: #06b6d4;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+    body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
+    .glow { position: fixed; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(147, 51, 234, 0.15), transparent 70%); top: -100px; right: -100px; pointer-events: none; }
+    .dashboard-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; z-index: 1; position: relative; }
+    .sidebar { background: rgba(17, 24, 39, 0.85); border-right: 1px solid var(--border); padding: 32px 24px; backdrop-filter: blur(16px); display: flex; flex-direction: column; }
+    .logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 40px; display: flex; align-items: center; gap: 8px; }
+    .logo span { background: linear-gradient(135deg, #a855f7, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .menu-list { display: flex; flex-direction: column; gap: 8px; }
+    .menu-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; color: var(--text-muted); text-decoration: none; border-radius: 12px; font-weight: 500; font-size: 0.95rem; border: 1px solid transparent; transition: all 0.25s ease;}
+    .menu-item:hover, .menu-item.active { background: rgba(147, 51, 234, 0.12); color: var(--text-main); transform: translateX(4px); }
+    .menu-item.active { background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(6, 182, 212, 0.1)); color: #fff; font-weight: 600; }
+    .menu-item i { font-size: 1.25rem; color: var(--primary-hover); }
+    
+    .main-content { padding: 40px 48px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;}
+    
+    .subscription-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 50px;
+        backdrop-filter: blur(12px);
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .vip-icon {
+        width: 100px;
+        height: 100px;
+        border-radius: 30px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+    }
+    .vip-icon i { font-size: 3.5rem; color: #fff; }
+    
+    .free-icon {
+        background: linear-gradient(135deg, #64748b, #475569);
+        box-shadow: 0 10px 25px rgba(100, 116, 139, 0.3);
+    }
+    
+    .subscription-card h2 { font-size: 2rem; margin-bottom: 15px; color: #fff; }
+    .subscription-card p { color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; margin-bottom: 40px; }
+    
+    .btn-upgrade {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .btn-upgrade:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4); }
+    
+    .status-badge-pro { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 20px; font-size: 0.95rem; font-weight: 600; margin-bottom: 30px; }
+    .status-badge-free { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(100, 116, 139, 0.1); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); border-radius: 20px; font-size: 0.95rem; font-weight: 600; margin-bottom: 30px; }
+    
+    .features-list { text-align: left; margin: 30px auto; display: inline-block; }
+    .features-list li { list-style: none; color: #fff; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; font-size: 1.05rem; }
+    .features-list li i { color: #10b981; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="logo"><i class="ri-flashlight-line" style="color: var(--primary-hover);"></i><div>PRO<span>SOLUTION</span></div></div>
+        <nav class="menu-list">
+            <a href="/dashboard/" class="menu-item {% if active_menu == 'home' %}active{% endif %}"><i class="ri-dashboard-line"></i> Início</a>
+            <a href="/dashboard/create" class="menu-item {% if active_menu == 'create' %}active{% endif %}"><i class="ri-edit-2-line"></i> Criar conteúdo</a>
+            <a href="/dashboard/calendar" class="menu-item {% if active_menu == 'calendar' %}active{% endif %}"><i class="ri-calendar-event-line"></i> Calendário</a>
+            <a href="/dashboard/instagram" class="menu-item {% if active_menu == 'instagram' %}active{% endif %}"><i class="ri-instagram-line"></i> Instagram</a>
+            <a href="/dashboard/subscription" class="menu-item {% if active_menu == 'subscription' %}active{% endif %}"><i class="ri-vip-crown-line"></i> Minha assinatura</a>
+            <a href="/dashboard/settings" class="menu-item {% if active_menu == 'settings' %}active{% endif %}"><i class="ri-settings-4-line"></i> Configurações</a>
+            
+            <form action="/auth/logout" method="post" style="margin-top: 20px;">
+              <button type="submit" class="menu-item" style="width: 100%; background: transparent; cursor: pointer; text-align: left; color: #ef4444; border: none;"><i class="ri-logout-box-r-line"></i> Sair</button>
+            </form>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="subscription-card">
+            {% if is_vip %}
+                <div class="vip-icon">
+                    <i class="ri-vip-crown-fill"></i>
+                </div>
+                <div class="status-badge-pro">
+                    <i class="ri-checkbox-circle-fill"></i> Plano PRO Ativo
+                </div>
+                <h2>Você é PRO!</h2>
+                <p>Obrigado por assinar a Prosolution. Todos os recursos ilimitados, incluindo Postagem Automática no Instagram e Motor de IA Ilimitado estão desbloqueados para a sua conta.</p>
+                
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; display: inline-block; margin-top: 20px;">
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 5px;">Sua assinatura é gerenciada via Asaas.</div>
+                </div>
+            {% else %}
+                <div class="vip-icon free-icon">
+                    <i class="ri-user-star-line"></i>
+                </div>
+                <div class="status-badge-free">
+                    <i class="ri-information-line"></i> Plano Gratuito
+                </div>
+                <h2>Desbloqueie o Poder da IA</h2>
+                <p>Atualize para o Plano PRO e tenha o social media perfeito trabalhando para a sua empresa 24 horas por dia.</p>
+                
+                <ul class="features-list">
+                    <li><i class="ri-check-line"></i> Geração ilimitada de posts de alta conversão</li>
+                    <li><i class="ri-check-line"></i> Integração direta de publicação com o Instagram</li>
+                    <li><i class="ri-check-line"></i> Calendário dinâmico de agendamento automático</li>
+                    <li><i class="ri-check-line"></i> Motor avançado LangChain (ChatGPT-4)</li>
+                </ul>
+                <br>
+                <form action="/dashboard/subscription/upgrade" method="post">
+                    <button type="submit" class="btn-upgrade">
+                        <i class="ri-vip-crown-line"></i> Fazer Upgrade para PRO
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </main>
+</div>
+</body>
+</html>

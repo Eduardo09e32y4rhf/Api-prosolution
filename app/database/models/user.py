@@ -11,6 +11,9 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+    
+    is_vip = Column(Boolean, default=False)
+    asaas_customer_id = Column(String, nullable=True)
 
     business = relationship("Business", back_populates="user", uselist=False, cascade="all, delete-orphan")
     brand_profile = relationship("BrandProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")

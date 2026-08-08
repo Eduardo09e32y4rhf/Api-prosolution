@@ -306,8 +306,73 @@ async def instagram_disconnect(
     return RedirectResponse("/dashboard/instagram")
 
 @router.get("/subscription", response_class=HTMLResponse)
-async def subscription(request: Request, user: dict = Depends(get_current_user_from_cookie)):
-    return templates.TemplateResponse("placeholder.html", {"request": request, "title": "Minha assinatura", "active_menu": "subscription"})
+async def subscription_view(request: Request, user_token: dict = Depends(get_current_user_from_cookie), db: AsyncSession = Depends(get_db)):
+    from app.database.models.user import User
+    
+    email = user_token.get("sub")
+    user_db = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+    
+    user_data = {
+        "email": user_db.email,
+        "name": user_db.email.split("@")[0].capitalize(),
+    }
+    
+    return templates.TemplateResponse("subscription.html", {
+        "request": request, 
+        "user": user_data,
+        "is_vip": user_db.is_vip,
+        "active_menu": "subscription"
+    })
+
+@router.post("/subscription/upgrade")
+async def subscription_upgrade(
+    user_token: dict = Depends(get_current_user_from_cookie),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.database.models.user import User
+    from app.database.models.payment import Payment
+    from app.payments.asaas import AsaasService
+    from fastapi.responses import RedirectResponse
+    
+    email = user_token.get("sub")
+    user_db = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+    
+    if user_db.is_vip:
+        return RedirectResponse("/dashboard/subscription")
+        
+    asaas = AsaasService()
+    customer_id = user_db.asaas_customer_id
+    
+    # Cria o customer no Asaas se não existir
+    if not customer_id:
+        customer_id = await asaas.create_customer(name=user_db.email, email=user_db.email)
+        if customer_id:
+            user_db.asaas_customer_id = customer_id
+            await db.commit()
+            
+    if not customer_id:
+        # Se falhou em criar
+        return RedirectResponse("/dashboard/subscription?error=asaas_fail")
+        
+    # Gera a cobrança (R$ 97,00)
+    payment_data = await asaas.create_payment_link(customer_id, 97.00, "Assinatura Prosolution PRO")
+    
+    if payment_data:
+        # Salva o pagamento localmente
+        new_payment = Payment(
+            user_id=user_db.id,
+            email=user_db.email,
+            amount=97.00,
+            status=payment_data["status"],
+            external_id=payment_data["payment_id"]
+        )
+        db.add(new_payment)
+        await db.commit()
+        
+        # Redireciona para o checkout do Asaas
+        return RedirectResponse(payment_data["invoice_url"], status_code=302)
+        
+    return RedirectResponse("/dashboard/subscription?error=payment_creation_fail")
 
 # --- CONFIGURAÇÕES ---
 

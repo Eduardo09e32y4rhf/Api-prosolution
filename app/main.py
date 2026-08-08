@@ -6,9 +6,7 @@ from fastapi.templating import Jinja2Templates
 # Routers
 from app.auth.routes import router as auth_router
 from app.dashboard.routes import router as dashboard_router
-from app.instagram.router import router as instagram_router
-from app.ai.routes import router as ai_router
-from app.payments.routes import router as payments_router
+from app.payments.webhooks import router as payments_webhook_router
 
 # Database
 from app.database.base import init_db
@@ -34,9 +32,7 @@ async def home(request: Request):
 # === ROUTERS ===
 app.include_router(auth_router, prefix="/auth")
 app.include_router(dashboard_router)
-app.include_router(instagram_router)
-app.include_router(ai_router)
-app.include_router(payments_router)
+app.include_router(payments_webhook_router, prefix="/api")
 
 # === API TEST ===
 @app.get("/api")
