@@ -69,8 +69,83 @@ async def dashboard(request: Request, user_token: dict = Depends(get_current_use
 # --- ROTAS PLACEHOLDER ---
 
 @router.get("/create", response_class=HTMLResponse)
-async def create_content(request: Request, user: dict = Depends(get_current_user_from_cookie)):
-    return templates.TemplateResponse("placeholder.html", {"request": request, "title": "Criar conteúdo", "active_menu": "create"})
+async def create_content(request: Request, user_token: dict = Depends(get_current_user_from_cookie), db: AsyncSession = Depends(get_db)):
+    from app.database.models.user import User
+    from app.database.models.business import Business
+    
+    email = user_token.get("sub")
+    user_db = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+    
+    if not user_db:
+        raise HTTPException(status_code=401, detail="Usuário não encontrado")
+        
+    business = (await db.execute(select(Business).where(Business.user_id == user_db.id))).scalar_one_or_none()
+    has_setup = True if business and business.segment else False
+    
+    posts = (await db.execute(select(Post).where(Post.user_id == user_db.id).order_by(desc(Post.created_at)))).scalars().all()
+    
+    user_data = {
+        "email": user_db.email,
+        "name": user_db.email.split("@")[0].capitalize(),
+    }
+    
+    return templates.TemplateResponse("create.html", {
+        "request": request, 
+        "user": user_data,
+        "has_setup": has_setup,
+        "posts": posts,
+        "active_menu": "create"
+    })
+
+@router.post("/create/generate")
+async def generate_content(
+    request: Request,
+    user_token: dict = Depends(get_current_user_from_cookie),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.database.models.user import User
+    from app.database.models.business import Business
+    from app.database.models.brand_profile import BrandProfile
+    from app.ai.engine import AIEngine
+    
+    email = user_token.get("sub")
+    user_db = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+    
+    business = (await db.execute(select(Business).where(Business.user_id == user_db.id))).scalar_one_or_none()
+    brand = (await db.execute(select(BrandProfile).where(BrandProfile.user_id == user_db.id))).scalar_one_or_none()
+    
+    form_data = await request.form()
+    topic = form_data.get("topic")
+    details = form_data.get("details", "")
+    
+    full_topic = f"{topic}. Detalhes adicionais: {details}" if details else topic
+    
+    # Executa a IA
+    ai = AIEngine()
+    generated_content = await ai.generate_post(business, brand, full_topic)
+    
+    # Salva o Log da IA
+    ai_log = AILog(
+        user_id=user_db.id,
+        provider="openai",
+        prompt=full_topic,
+        response=generated_content
+    )
+    db.add(ai_log)
+    
+    # Salva o Post como Rascunho
+    new_post = Post(
+        user_id=user_db.id,
+        title=topic[:50] + "..." if len(topic) > 50 else topic,
+        content=generated_content,
+        platform="instagram"
+    )
+    db.add(new_post)
+    
+    await db.commit()
+    
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse("/dashboard/create", status_code=302)
 
 @router.get("/calendar", response_class=HTMLResponse)
 async def calendar(request: Request, user: dict = Depends(get_current_user_from_cookie)):
