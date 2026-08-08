@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -47,6 +47,43 @@
     <i class="ri-whatsapp-line"></i>
   </a>
 
+  <!-- Login Modal -->
+  <div id="loginModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: var(--bg-surface); padding: 40px; border-radius: 20px; border: 1px solid var(--primary); max-width: 400px; width: 90%; text-align: center; position: relative;">
+        <button onclick="closeLogin()" style="position: absolute; right: 20px; top: 20px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;"><i class="ri-close-line"></i></button>
+        <h2 style="margin-bottom: 20px; font-size: 1.8rem;">Acesse sua Conta</h2>
+        <form action="/auth/login" method="post" style="display: flex; flex-direction: column; gap: 15px;">
+            {% if request.query_params.error %}
+            <div style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 10px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                {{ request.query_params.error }}
+            </div>
+            {% endif %}
+            <input type="email" name="email" placeholder="Seu email" required style="padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; width: 100%;">
+            <input type="password" name="password" placeholder="Sua senha" required style="padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: #fff; width: 100%;">
+            <button type="submit" class="btn-cta" style="width: 100%; border: none; font-size: 1.1rem; margin-top: 10px;">Entrar na Prosolution</button>
+        </form>
+    </div>
+  </div>
+
   <script src="static/js/matrix.js"></script>
+  <script>
+    function openLogin(e) {
+        if(e) e.preventDefault();
+        document.getElementById('loginModal').style.display = 'flex';
+    }
+    function closeLogin() {
+        document.getElementById('loginModal').style.display = 'none';
+    }
+    
+    // Interceptar cliques nos botões que levam para o dashboard
+    document.querySelectorAll('a[href="/dashboard"]').forEach(btn => {
+        btn.addEventListener('click', openLogin);
+    });
+
+    // Se houver erro, abrir modal automaticamente
+    {% if request.query_params.error %}
+        openLogin();
+    {% endif %}
+  </script>
 </body>
 </html>

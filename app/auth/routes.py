@@ -17,7 +17,7 @@ async def login(
     user = await repo.get_by_email(email)
 
     if not user or not verify_password(password, user.password_hash):
-        raise HTTPException(status_code=401, detail="Credenciais inválidas")
+        return RedirectResponse("/?error=Credenciais+inválidas", status_code=302)
 
     token = create_token({"sub": user.email, "plan": getattr(user, "plan", "free")})
     resp = RedirectResponse("/dashboard", status_code=302)
