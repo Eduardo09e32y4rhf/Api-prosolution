@@ -1,226 +1,445 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <title>Dashboard | Prosolution IA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="static/css/style.css">
+  <!-- Google Fonts Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  
   <style>
-    /* Dashboard specific overrides */
+    :root {
+      --bg-base: #090d16;
+      --bg-surface: #111827;
+      --bg-card: rgba(23, 32, 51, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(168, 85, 247, 0.4);
+      --primary: #9333ea;
+      --primary-hover: #a855f7;
+      --accent: #06b6d4;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --warning: #f59e0b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Outfit', sans-serif;
+    }
+
     body {
-        background: radial-gradient(circle at top center, #1a0529, #0d0d0d);
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
     }
+
+    /* Ambient Glow */
+    .glow {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(147, 51, 234, 0.15), transparent 70%);
+      top: -100px;
+      right: -100px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
     .dashboard-container {
-        display: grid;
-        grid-template-columns: 260px 1fr;
-        min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
     }
+
+    /* Sidebar */
     .sidebar {
-        background: rgba(13, 13, 13, 0.8);
-        border-right: 1px solid var(--border);
-        padding: 24px;
-        backdrop-filter: blur(10px);
+      background: rgba(17, 24, 39, 0.85);
+      border-right: 1px solid var(--border);
+      padding: 32px 24px;
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
     }
-    .main-content {
-        padding: 40px;
-        overflow-y: auto;
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+
+    .logo span {
+      background: linear-gradient(135deg, #a855f7, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
     .menu-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 14px;
-        color: #aaa;
-        text-decoration: none;
-        border-radius: 8px;
-        transition: 0.3s;
-        margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.25s ease;
+      border: 1px solid transparent;
     }
+
     .menu-item:hover, .menu-item.active {
-        background: var(--glass);
-        color: white;
-        border: 1px solid var(--border);
+      background: rgba(147, 51, 234, 0.12);
+      color: var(--text-main);
+      border-color: rgba(147, 51, 234, 0.3);
+      transform: translateX(4px);
     }
+
+    .menu-item.active {
+      background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(6, 182, 212, 0.1));
+      color: #fff;
+      font-weight: 600;
+    }
+
     .menu-item i {
-        font-size: 1.2rem;
-        color: var(--highlight);
+      font-size: 1.25rem;
+      color: var(--primary-hover);
     }
-    .stat-card {
-        background: var(--glass);
-        border: 1px solid var(--border);
-        padding: 24px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-    }
-    .stat-icon {
-        width: 50px;
-        height: 50px;
-        background: rgba(130, 10, 209, 0.2);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--highlight);
-        font-size: 1.5rem;
-    }
-    .stat-info h3 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-    .stat-info p {
-        color: #aaa;
-        font-size: 0.9rem;
-    }
-    .action-btn {
-        background: linear-gradient(135deg, #820AD1, #4A00E0);
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: 0.3s;
-    }
-    .action-btn:hover {
-        opacity: 0.9;
-        transform: translateY(-2px);
-    }
-    .grid-3 {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 24px;
-        margin-bottom: 40px;
-    }
-    .section-title {
-        font-size: 1.5rem;
-        margin-bottom: 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+
     .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px;
-        background: var(--glass);
-        border-radius: 12px;
-        margin-top: auto;
-        border: 1px solid var(--border);
+      margin-top: auto;
+      padding: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
+
     .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--highlight);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 40px 48px;
+      overflow-y: auto;
+    }
+
+    .header-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 36px;
+    }
+
+    .welcome-title h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .welcome-title p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .action-btn {
+      background: linear-gradient(135deg, var(--primary), #7e22ce);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 24px rgba(147, 51, 234, 0.35);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(147, 51, 234, 0.5);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 24px 28px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-focus);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(147, 51, 234, 0.15);
+      border: 1px solid rgba(147, 51, 234, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: var(--primary-hover);
+    }
+
+    .stat-icon.revenue {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.25);
+      color: var(--success);
+    }
+
+    .stat-icon.ai {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: rgba(6, 182, 212, 0.25);
+      color: var(--accent);
+    }
+
+    .stat-info h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .stat-info p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* Table Activity Section */
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .table-container {
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    thead th {
+      padding: 18px 24px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody td {
+      padding: 20px 24px;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      padding: 48px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      color: var(--primary-hover);
     }
   </style>
 </head>
 <body>
 
+<div class="glow"></div>
+
 <div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="logo" style="margin-bottom: 40px;">PRO<span>SOLUTION</span> IA</div>
+        <div class="logo">
+          <i class="ri-flashlight-line" style="color: var(--primary-hover);"></i>
+          <div>PRO<span>SOLUTION</span></div>
+        </div>
         
-        <nav>
-            <a href="#" class="menu-item active"><i class="ri-dashboard-line"></i> Dashboard</a>
-            <a href="#" class="menu-item"><i class="ri-robot-2-line"></i> IA Generator</a>
-            <a href="#" class="menu-item"><i class="ri-instagram-line"></i> Instagram</a>
-            <a href="#" class="menu-item"><i class="ri-calendar-event-line"></i> Agendamentos</a>
-            <a href="#" class="menu-item"><i class="ri-settings-4-line"></i> Configurações</a>
+        <nav class="menu-list">
+            <a href="/dashboard/" class="menu-item {% if active_menu == 'home' %}active{% endif %}"><i class="ri-dashboard-line"></i> Início</a>
+            <a href="/dashboard/create" class="menu-item {% if active_menu == 'create' %}active{% endif %}"><i class="ri-edit-2-line"></i> Criar conteúdo</a>
+            <a href="/dashboard/calendar" class="menu-item {% if active_menu == 'calendar' %}active{% endif %}"><i class="ri-calendar-event-line"></i> Calendário</a>
+            <a href="/dashboard/instagram" class="menu-item {% if active_menu == 'instagram' %}active{% endif %}"><i class="ri-instagram-line"></i> Instagram</a>
+            <a href="/dashboard/subscription" class="menu-item {% if active_menu == 'subscription' %}active{% endif %}"><i class="ri-vip-crown-line"></i> Minha assinatura</a>
+            <a href="/dashboard/settings" class="menu-item {% if active_menu == 'settings' %}active{% endif %}"><i class="ri-settings-4-line"></i> Configurações</a>
+            
+            <form action="/auth/logout" method="post" style="margin-top: 20px;">
+              <button type="submit" class="menu-item" style="width: 100%; background: transparent; cursor: pointer; text-align: left; color: #ef4444;"><i class="ri-logout-box-r-line"></i> Sair</button>
+            </form>
         </nav>
 
-        <div style="margin-top: auto; padding-top: 40px;">
-           <div class="user-profile">
-               <div class="avatar">U</div>
-               <div>
-                   <div style="font-weight: 600;">Usuário</div>
-                   <div style="font-size: 0.8rem; color: #aaa;">Plano Pro</div>
-               </div>
-           </div>
+        <div class="user-profile">
+            <div class="avatar">{{ user.name[0] | default('U') }}</div>
+            <div style="overflow: hidden;">
+                <div style="font-weight: 600; font-size: 0.95rem; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{ user.name }}</div>
+                <div style="font-size: 0.8rem; color: var(--accent);">{{ user.business_name }}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Plano {{ user.plan }}</div>
+            </div>
         </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
-        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
-            <div>
-                <h1 style="font-size: 1.8rem;">Bem-vindo de volta, <span style="color: var(--highlight);">Mestre</span></h1>
-                <p style="color: #aaa;">Aqui está o resumo da sua automação hoje.</p>
+        <header class="header-section">
+            <div class="welcome-title">
+                <h1>Olá, <span style="background: linear-gradient(135deg, #c084fc, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ user.name }}</span>!</h1>
+                <p>Aqui está o resumo da sua operação na Prosolution IA.</p>
             </div>
-            <button class="action-btn"><i class="ri-add-line"></i> Novo Post IA</button>
+            <button class="action-btn" onclick="window.location.href='/dashboard/create'">
+              <i class="ri-add-circle-line"></i> Criar Conteúdo
+            </button>
         </header>
 
-        <!-- Stats -->
-        <div class="grid-3">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon"><i class="ri-user-follow-line"></i></div>
+                <div class="stat-icon"><i class="ri-instagram-line"></i></div>
                 <div class="stat-info">
-                    <h3>12.5k</h3>
-                    <p>Seguidores</p>
+                    <h3 style="font-size: 1.2rem;">{{ metrics.instagram_status }}</h3>
+                    <p>Status do Instagram</p>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="ri-magic-line"></i></div>
+                <div class="stat-icon revenue"><i class="ri-file-list-3-line"></i></div>
                 <div class="stat-info">
-                    <h3>342</h3>
-                    <p>Posts Gerados</p>
+                    <h3>{{ metrics.posts_this_month }}</h3>
+                    <p>Posts Agendados</p>
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon"><i class="ri-money-dollar-circle-line"></i></div>
+                <div class="stat-icon ai"><i class="ri-cpu-line"></i></div>
                 <div class="stat-info">
-                    <h3>R$ 4.2k</h3>
-                    <p>Receita Estimada</p>
+                    <h3>{{ metrics.ai_actions }}</h3>
+                    <p>Posts Gerados pela IA</p>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Activity & AI -->
+        <!-- Recent Activity Section -->
         <div class="section-title">
-            <h2>Atividades Recentes</h2>
+            <h2>Atividades Recentes do Sistema</h2>
         </div>
 
-        <div style="background: var(--glass); border-radius: 16px; border: 1px solid var(--border); overflow: hidden;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                <thead style="background: rgba(255,255,255,0.05);">
+        <div class="table-container">
+            {% if activities %}
+            <table>
+                <thead>
                     <tr>
-                        <th style="padding: 16px; color: #aaa;">Atividade</th>
-                        <th style="padding: 16px; color: #aaa;">Status</th>
-                        <th style="padding: 16px; color: #aaa;">Data</th>
+                        <th>Atividade</th>
+                        <th>Status</th>
+                        <th>Data / Hora</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style="border-bottom: 1px solid var(--border);">
-                        <td style="padding: 16px;">Post Gerado: "Dicas de Marketing"</td>
-                        <td style="padding: 16px;"><span style="color: #00ff99;">Concluído</span></td>
-                        <td style="padding: 16px;">{{ datetime }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid var(--border);">
-                        <td style="padding: 16px;">Pagamento Recebido (Pix)</td>
-                        <td style="padding: 16px;"><span style="color: #00ff99;">Aprovado</span></td>
-                        <td style="padding: 16px;">Hoje, 14:30</td>
-                    </tr>
+                    {% for act in activities %}
                     <tr>
-                        <td style="padding: 16px;">Automação de Direct</td>
-                        <td style="padding: 16px;"><span style="color: #ffaa00;">Em andamento</span></td>
-                        <td style="padding: 16px;">Agora</td>
+                        <td style="font-weight: 500;">{{ act.title }}</td>
+                        <td>
+                          <span class="status-badge" style="background: rgba(255,255,255,0.05); color: {{ act.status_color }};">
+                            ● {{ act.status }}
+                          </span>
+                        </td>
+                        <td style="color: var(--text-muted); font-size: 0.9rem;">{{ act.date }}</td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
+            {% else %}
+            <div class="empty-state">
+                <i class="ri-inbox-line"></i>
+                <h3 style="margin-bottom: 6px; font-size: 1.1rem; color: #fff;">Nenhuma atividade registrada ainda</h3>
+                <p style="font-size: 0.9rem;">As operações da IA, publicações e pagamentos reais aparecerão aqui em tempo real.</p>
+            </div>
+            {% endif %}
         </div>
 
     </main>
@@ -228,4 +447,3 @@
 
 </body>
 </html>
-

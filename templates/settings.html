@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Configurações | Prosolution IA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #090d16;
+      --bg-surface: #111827;
+      --bg-card: rgba(23, 32, 51, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(168, 85, 247, 0.4);
+      --primary: #9333ea;
+      --primary-hover: #a855f7;
+      --accent: #06b6d4;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+    body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
+    .glow { position: fixed; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(147, 51, 234, 0.15), transparent 70%); top: -100px; right: -100px; pointer-events: none; }
+    .dashboard-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; z-index: 1; position: relative; }
+    .sidebar { background: rgba(17, 24, 39, 0.85); border-right: 1px solid var(--border); padding: 32px 24px; backdrop-filter: blur(16px); display: flex; flex-direction: column; }
+    .logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 40px; display: flex; align-items: center; gap: 8px; }
+    .logo span { background: linear-gradient(135deg, #a855f7, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .menu-list { display: flex; flex-direction: column; gap: 8px; }
+    .menu-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; color: var(--text-muted); text-decoration: none; border-radius: 12px; font-weight: 500; font-size: 0.95rem; border: 1px solid transparent; transition: all 0.25s ease;}
+    .menu-item:hover, .menu-item.active { background: rgba(147, 51, 234, 0.12); color: var(--text-main); transform: translateX(4px); }
+    .menu-item.active { background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(6, 182, 212, 0.1)); color: #fff; font-weight: 600; }
+    .menu-item i { font-size: 1.25rem; color: var(--primary-hover); }
+    
+    .main-content { padding: 40px 48px; overflow-y: auto; }
+    
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
+    .settings-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 30px; backdrop-filter: blur(12px); }
+    .settings-card h2 { font-size: 1.4rem; margin-bottom: 20px; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .settings-card h2 i { color: var(--primary-hover); }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: #fff; font-size: 0.95rem; transition: border-color 0.3s ease; }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--border-focus); }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    
+    .action-btn { background: linear-gradient(135deg, var(--primary), #7e22ce); color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; margin-top: 10px; }
+    .action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(147, 51, 234, 0.35); }
+    
+    .success-msg { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="logo"><i class="ri-flashlight-line" style="color: var(--primary-hover);"></i><div>PRO<span>SOLUTION</span></div></div>
+        <nav class="menu-list">
+            <a href="/dashboard/" class="menu-item {% if active_menu == 'home' %}active{% endif %}"><i class="ri-dashboard-line"></i> Início</a>
+            <a href="/dashboard/create" class="menu-item {% if active_menu == 'create' %}active{% endif %}"><i class="ri-edit-2-line"></i> Criar conteúdo</a>
+            <a href="/dashboard/calendar" class="menu-item {% if active_menu == 'calendar' %}active{% endif %}"><i class="ri-calendar-event-line"></i> Calendário</a>
+            <a href="/dashboard/instagram" class="menu-item {% if active_menu == 'instagram' %}active{% endif %}"><i class="ri-instagram-line"></i> Instagram</a>
+            <a href="/dashboard/subscription" class="menu-item {% if active_menu == 'subscription' %}active{% endif %}"><i class="ri-vip-crown-line"></i> Minha assinatura</a>
+            <a href="/dashboard/settings" class="menu-item {% if active_menu == 'settings' %}active{% endif %}"><i class="ri-settings-4-line"></i> Configurações</a>
+            
+            <form action="/auth/logout" method="post" style="margin-top: 20px;">
+              <button type="submit" class="menu-item" style="width: 100%; background: transparent; cursor: pointer; text-align: left; color: #ef4444; border: none;"><i class="ri-logout-box-r-line"></i> Sair</button>
+            </form>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="welcome-title">
+            <h1 style="font-size: 2.2rem; font-weight: 700;">Configurações</h1>
+            <p style="color: var(--text-muted);">Defina o perfil da sua empresa e a identidade da marca para a IA.</p>
+        </div>
+        
+        {% if request.query_params.msg == 'empresa_salva' %}
+        <div class="success-msg" style="margin-top: 20px;">
+            <i class="ri-checkbox-circle-fill"></i> Dados da empresa salvos com sucesso!
+        </div>
+        {% endif %}
+        {% if request.query_params.msg == 'marca_salva' %}
+        <div class="success-msg" style="margin-top: 20px;">
+            <i class="ri-checkbox-circle-fill"></i> Identidade da marca salva com sucesso!
+        </div>
+        {% endif %}
+
+        <div class="settings-grid">
+            <!-- Form Empresa -->
+            <div class="settings-card">
+                <h2><i class="ri-store-2-line"></i> Minha Empresa</h2>
+                <form action="/dashboard/settings/business" method="post">
+                    <div class="form-group">
+                        <label>Segmento de Mercado</label>
+                        <input type="text" name="segment" placeholder="Ex: Clínica Odontológica, Moda, Tecnologia" value="{{ business.segment if business else '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Principais Produtos</label>
+                        <textarea name="products" placeholder="Liste seus principais produtos...">{{ business.products if business else '' }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Principais Serviços</label>
+                        <textarea name="services" placeholder="Liste seus principais serviços...">{{ business.services if business else '' }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Público-Alvo</label>
+                        <input type="text" name="audience" placeholder="Ex: Mulheres de 25 a 45 anos" value="{{ business.audience if business else '' }}">
+                    </div>
+                    <div class="form-group" style="display: flex; gap: 15px;">
+                        <div style="flex: 1;">
+                            <label>Cidade/Região</label>
+                            <input type="text" name="city" placeholder="Sua localização" value="{{ business.city if business else '' }}">
+                        </div>
+                        <div style="flex: 1;">
+                            <label>WhatsApp</label>
+                            <input type="text" name="whatsapp" placeholder="Apenas números" value="{{ business.whatsapp if business else '' }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Objetivo de Marketing</label>
+                        <select name="objective">
+                            <option value="vendas" {% if business and business.objective == 'vendas' %}selected{% endif %}>Vendas Diretas</option>
+                            <option value="autoridade" {% if business and business.objective == 'autoridade' %}selected{% endif %}>Criar Autoridade</option>
+                            <option value="engajamento" {% if business and business.objective == 'engajamento' %}selected{% endif %}>Aumentar Engajamento</option>
+                            <option value="leads" {% if business and business.objective == 'leads' %}selected{% endif %}>Capturar Leads</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="action-btn"><i class="ri-save-line"></i> Salvar Empresa</button>
+                </form>
+            </div>
+
+            <!-- Form Marca -->
+            <div class="settings-card">
+                <h2><i class="ri-quill-pen-line"></i> Identidade da Marca</h2>
+                <form action="/dashboard/settings/brand" method="post">
+                    <div class="form-group">
+                        <label>Tom de Voz</label>
+                        <select name="tone">
+                            <option value="profissional" {% if brand and brand.tone == 'profissional' %}selected{% endif %}>Profissional e Sério</option>
+                            <option value="amigavel" {% if brand and brand.tone == 'amigavel' %}selected{% endif %}>Amigável e Empático</option>
+                            <option value="engracado" {% if brand and brand.tone == 'engracado' %}selected{% endif %}>Descontraído e Divertido</option>
+                            <option value="urgente" {% if brand and brand.tone == 'urgente' %}selected{% endif %}>Promocional e Urgente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estilo Visual / Palavras-chave</label>
+                        <input type="text" name="style" placeholder="Ex: Moderno, Minimalista, Colorido..." value="{{ brand.style if brand else '' }}">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="emojis" id="emojis_check" style="width: auto;" {% if brand and brand.emojis %}checked{% endif %}>
+                        <label for="emojis_check" style="margin: 0; cursor: pointer;">Usar emojis nas legendas (IA)</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Palavras Proibidas (separadas por vírgula)</label>
+                        <textarea name="forbidden_words" placeholder="Palavras que a IA nunca deve usar...">{{ brand.forbidden_words if brand else '' }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Chamada para Ação (CTA) Padrão</label>
+                        <input type="text" name="cta" placeholder="Ex: Clique no link da bio!" value="{{ brand.cta if brand else '' }}">
+                    </div>
+                    
+                    <div style="margin-top: 30px;">
+                      <button type="submit" class="action-btn" style="background: linear-gradient(135deg, #06b6d4, #0284c7);"><i class="ri-save-line"></i> Salvar Identidade</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>
