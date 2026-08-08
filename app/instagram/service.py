@@ -77,3 +77,35 @@ class InstagramService:
                     return ig_data["instagram_business_account"]["id"]
                     
             raise Exception("Nenhuma conta comercial do Instagram vinculada à(s) sua(s) página(s) do Facebook.")
+
+    async def publish_post(self, ig_account_id: str, access_token: str, image_url: str, caption: str) -> str:
+        """Faz o upload da mídia e publica no Instagram."""
+        async with httpx.AsyncClient() as client:
+            # 1. Criar container de mídia
+            media_url = f"{self.base_url}/{ig_account_id}/media"
+            media_params = {
+                "image_url": image_url,
+                "caption": caption,
+                "access_token": access_token
+            }
+            media_res = await client.post(media_url, params=media_params)
+            media_data = media_res.json()
+            
+            if "error" in media_data:
+                raise Exception(f"Erro ao enviar mídia: {media_data['error'].get('message')}")
+                
+            creation_id = media_data.get("id")
+            
+            # 2. Publicar container
+            publish_url = f"{self.base_url}/{ig_account_id}/media_publish"
+            publish_params = {
+                "creation_id": creation_id,
+                "access_token": access_token
+            }
+            publish_res = await client.post(publish_url, params=publish_params)
+            publish_data = publish_res.json()
+            
+            if "error" in publish_data:
+                raise Exception(f"Erro ao publicar mídia: {publish_data['error'].get('message')}")
+                
+            return publish_data.get("id")

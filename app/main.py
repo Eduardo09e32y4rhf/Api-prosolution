@@ -18,7 +18,9 @@ app = FastAPI(title="Prosolution API")
 # === STARTUP ===
 @app.on_event("startup")
 async def startup():
+    from app.worker import start_worker
     await init_db()
+    start_worker()
 
 # === STATIC / TEMPLATES ===
 app.mount("/static", StaticFiles(directory="static"), name="static")

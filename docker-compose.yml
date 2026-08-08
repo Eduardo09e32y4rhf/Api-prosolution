@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: prosolution_web
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - ENVIRONMENT=production
+      # Aqui você preencherá as variáveis de ambiente em produção:
+      # - OPENAI_API_KEY=sua_chave
+      # - ASAAS_API_KEY=sua_chave_asaas
+      # - INSTAGRAM_APP_ID=seu_app_id
+      # - INSTAGRAM_APP_SECRET=seu_app_secret
