@@ -219,8 +219,91 @@ async def delete_post(
     return RedirectResponse("/dashboard/create", status_code=302)
 
 @router.get("/instagram", response_class=HTMLResponse)
-async def instagram(request: Request, user: dict = Depends(get_current_user_from_cookie)):
-    return templates.TemplateResponse("placeholder.html", {"request": request, "title": "Instagram", "active_menu": "instagram"})
+async def instagram_view(request: Request, user_token: dict = Depends(get_current_user_from_cookie), db: AsyncSession = Depends(get_db)):
+    from app.database.models.user import User
+    from app.database.models.brand_profile import BrandProfile
+    
+    email = user_token.get("sub")
+    user_db = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+    brand = (await db.execute(select(BrandProfile).where(BrandProfile.user_id == user_db.id))).scalar_one_or_none()
+    
+    is_connected = False
+    if brand and brand.ig_access_token and brand.ig_account_id:
+        is_connected = True
+        
+    user_data = {
+        "email": user_db.email,
+        "name": user_db.email.split("@")[0].capitalize(),
+    }
+    
+    return templates.TemplateResponse("instagram.html", {
+        "request": request, 
+        "user": user_data,
+        "is_connected": is_connected,
+        "active_menu": "instagram"
+    })
+
+@router.get("/instagram/connect")
+async def instagram_connect():
+    from app.instagram.service import InstagramService
+    ig_service = InstagramService()
+    url = ig_service.get_authorization_url()
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url)
+
+@router.get("/instagram/callback")
+async def instagram_callback(
+    code: str,
+    request: Request,
+    user_token: dict = Depends(get_current_user_from_cookie),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.instagram.service import InstagramService
+    from app.database.models.user import User
+    from app.database.models.brand_profile import BrandProfile
+    from fastapi.responses import RedirectResponse
+    
+    try:
+        ig_service = InstagramService()
+        access_token = await ig_service.exchange_code_for_token(code)
+        account_id = await ig_service.get_instagram_business_account_id(access_token)
+        
+        email = user_token.get("sub")
+        user_db = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+        brand = (await db.execute(select(BrandProfile).where(BrandProfile.user_id == user_db.id))).scalar_one_or_none()
+        
+        if not brand:
+            brand = BrandProfile(user_id=user_db.id)
+            db.add(brand)
+            
+        brand.ig_access_token = access_token
+        brand.ig_account_id = account_id
+        await db.commit()
+        
+        return RedirectResponse("/dashboard/instagram")
+        
+    except Exception as e:
+        return RedirectResponse(f"/dashboard/instagram?error={str(e)}")
+
+@router.post("/instagram/disconnect")
+async def instagram_disconnect(
+    user_token: dict = Depends(get_current_user_from_cookie),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.database.models.user import User
+    from app.database.models.brand_profile import BrandProfile
+    from fastapi.responses import RedirectResponse
+    
+    email = user_token.get("sub")
+    user_db = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+    brand = (await db.execute(select(BrandProfile).where(BrandProfile.user_id == user_db.id))).scalar_one_or_none()
+    
+    if brand:
+        brand.ig_access_token = None
+        brand.ig_account_id = None
+        await db.commit()
+        
+    return RedirectResponse("/dashboard/instagram")
 
 @router.get("/subscription", response_class=HTMLResponse)
 async def subscription(request: Request, user: dict = Depends(get_current_user_from_cookie)):

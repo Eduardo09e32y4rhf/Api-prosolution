@@ -12,5 +12,8 @@ class BrandProfile(Base):
     emojis = Column(Boolean, default=True)
     forbidden_words = Column(Text, nullable=True)
     cta = Column(String, nullable=True)
+    
+    ig_access_token = Column(String, nullable=True)
+    ig_account_id = Column(String, nullable=True)
 
     user = relationship("User", back_populates="brand_profile")
