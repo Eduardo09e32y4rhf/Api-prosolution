@@ -1,163 +1,99 @@
-# 🚀 Prosolution API — SaaS de Automação Inteligente
+# 🚀 Prosolution IA — SaaS Oficial de Automação & Inteligência Artificial
 
-A **Prosolution API** é uma plataforma **SaaS backend-first**, desenvolvida com **FastAPI**, focada em **segurança, automação e escalabilidade**, simulando um produto real pronto para mercado.
+A **Prosolution IA** é uma plataforma **SaaS Backend-First**, desenvolvida em **FastAPI**, com foco em **alta segurança, escalabilidade assíncrona e orquestração inteligente de publicações e pagamentos**.
 
-Este projeto foi pensado **além do CRUD**, com visão de arquitetura, autenticação moderna, controle de usuários, planos e deploy em produção.
+![Dashboard Oficial](docs/assets/dashboard_preview.png)
 
----
-
-## 🧠 Visão do Projeto
-
-O objetivo da Prosolution é servir como **base sólida para um SaaS profissional**, incluindo:
-
-* Autenticação real
-* Segurança por IP
-* Controle de usuários e administradores
-* Estrutura de monetização
-* Código limpo e organizado
-* Deploy funcional em cloud (Render)
+> ⚡ **Status do Projeto**: Em desenvolvimento ativo contínuo (Atualizado em **Agosto de 2026**). Arquitetura refatorada, sem dados de demonstração ou segredos hardcoded.
 
 ---
 
-## 🔐 Funcionalidades Implementadas
+## 💎 Destaques da Versão Oficial
 
-### ✅ Autenticação & Segurança
-
-* Login real com **PostgreSQL**
-* Senhas criptografadas com **bcrypt**
-* Autenticação via **JWT**
-* Sessão baseada em token
-* Proteção de rotas autenticadas
-* Redirecionamento automático após login
-
-### 🚫 Bloqueio de VPN / Proxy
-
-* Validação de IP do cliente
-* Bloqueio de acessos via VPN ou Proxy
-* Estrutura pronta para integração com APIs anti-fraude
-
-### 👥 Usuários & Admin
-
-* Usuários comuns
-* Usuários administradores
-* Controle de permissões
-* Plano associado ao usuário (free / pro / enterprise)
-
-### 💳 Monetização (estrutura pronta)
-
-
-* Base de planos no banco
-* Controle de acesso por plano
-* ✅ Integração funcional com Mercado Pago (Pix)
-
-
----
-
-## 🖥️ Interface
-
-
-## 🖥️ Interface & Experiência (V1.0)
-
-* **Dashboard Premium**: Interface Dark Mode com glassmorphism.
-* **Métricas em Tempo Real**: Visualize seguidores, posts gerados e receita.
-* **Status de Sistemas**: Monitoramento visual de serviços (Pix, AI, Instagram).
-* **Renderização Dinâmica**: Dados do usuário injetados via JWT no frontend.
-
-## 🤖 Módulo de Inteligência Artificial
-
-* **Google Gemini 1.5 Flash**: Geração ultra-rápida de legendas, ideias de Reels e CTAs.
-* **Integração OpenAI**: Suporte a GPT-4o-mini para tarefas complementares.
-* **Orquestrador de Conteúdo**: "Super Prompts" otimizados para viralização.
-
+* **🎨 Novo Dashboard Oficial**: Interface Dark Mode de alto contraste com glassmorphism, sem dados estáticos ou falsos.
+* **🔒 Segurança Rígida (P0)**:
+  * Autenticação via **Bcrypt Nativo** e tokens **JWT (python-jose)** com cookies `HttpOnly`, `SameSite=Lax` e `Secure`.
+  * `SECRET_KEY` e chaves de API sem fallbacks públicos (carregadas exclusivamente via `.env`).
+  * Rotas sensíveis e Dashboard 100% protegidos por dependências de injeção direta.
+* **⚡ SQLAlchemy Assíncrono + Alembic**: Migrações automatizadas e modelos estruturados para Usuários, Posts, Pagamentos e Logs de IA.
+* **💳 Gateway Pix (Mercado Pago)**: Arquitetura com persistência decimal segura (`Numeric(10,2)`).
+* **🤖 Multi-Provider de IA**: Orquestração integrada para Google Gemini e OpenAI.
 
 ---
 
 ## 🛠️ Stack Tecnológica
 
-* **Python 3.13**
-* **FastAPI**
-* **PostgreSQL**
-* **JWT (python-jose)**
-* **Passlib + Bcrypt**
-* **Jinja2**
-* **Uvicorn**
-* **APScheduler**
-* **HTML + CSS**
-* **Deploy: Render**
+* **Linguagem**: Python 3.11+ / 3.13
+* **Framework**: FastAPI (Async)
+* **Banco de Dados**: SQLAlchemy 2.0 (Async) + Alembic + SQLite (Local) / PostgreSQL (Produção)
+* **Segurança**: Bcrypt + JWT (python-jose) + Pydantic Settings
+* **Frontend**: HTML5 + Jinja2 + Vanilla CSS + Google Fonts (Outfit)
+* **Servidor**: Uvicorn ASGI
 
 ---
 
-## 📂 Estrutura do Projeto
+## 📂 Estrutura Consolidada
 
-```
+```text
 app/
-├── auth/          # Autenticação, JWT e segurança
-├── dashboard/     # Rotas protegidas e dashboard
-├── database/      # PostgreSQL e repositórios
-├── scheduler/     # Automação e jobs
-├── utils/         # VPN / Proxy block
-├── main.py        # Entry point
-static/
-templates/
-requirements.txt
-README.md
+├── ai/            # Provedores de IA (Gemini, OpenAI) e rotas
+├── auth/          # Endpoints de Login e Registro com JWT
+├── core/          # Configurações Pydantic e segurança
+├── dashboard/     # Métricas reais e renderização de tela
+├── database/      # Modelos oficiais, sessões assíncronas e Alembic
+├── instagram/     # Publicação e automação de mídias
+├── payments/      # Integração Pix via Mercado Pago
+├── users/         # Modelos e repositórios de usuários
+├── security.py    # Módulo centralizado de hash e tokens
+└── main.py        # Ponto de entrada da aplicação FastAPI
 ```
 
 ---
 
-## 🚀 Rodando Localmente
+## 🚀 Como Executar Localmente
 
+### 1. Clonar o Repositório
 ```bash
 git clone https://github.com/Eduardo09e32y4rhf/Api-prosolution.git
 cd Api-prosolution
+```
+
+### 2. Configurar o Ambiente Virtual
+```bash
 python -m venv venv
 venv\Scripts\activate   # Windows
+# source venv/bin/activate  # Linux/Mac
+```
+
+### 3. Instalar Dependências
+```bash
 pip install -r requirements.txt
-uvicorn app.main:app --reload
 ```
 
-Acesse:
+### 4. Configurar Variáveis de Ambiente
+Copie o modelo de `.env.example` e adicione seus tokens:
+```bash
+cp .env.example .env
+```
 
+### 5. Executar Migrações do Banco
+```bash
+alembic upgrade head
 ```
-http://localhost:8000
+
+### 6. Iniciar a Aplicação
+```bash
+uvicorn app.main:app --port 3000 --reload
 ```
+
+Acesse no navegador:
+👉 **[http://127.0.0.1:3000](http://127.0.0.1:3000)**
 
 ---
 
-## 🌍 Deploy
+## 👨‍💻 Autor & Manutenção
 
-Aplicação publicada na **Render**, com deploy automático via GitHub.
-
----
-
-## 👨‍💻 Sobre o Desenvolvedor
-
-**José Eduardo da Silva**
-🎓 Formado em **Análise e Desenvolvimento de Sistemas**
-💻 Backend Developer — APIs, Automação e Segurança
-
-Experiência prática com:
-
-* FastAPI
-* Arquitetura backend
-* Autenticação JWT
-* Banco de dados
-* Deploy em produção
-
-Este projeto demonstra **capacidade técnica + visão de produto**, indo além de exemplos básicos.
-
-🔗 GitHub: [https://github.com/Eduardo09e32y4rhf](https://github.com/Eduardo09e32y4rhf)
-
----
-
-## ⭐ Conclusão
-
-A **Prosolution API** é uma base real para um SaaS moderno, pronta para evolução com:
-
-* Pagamentos reais
-* Multi-tenant
-* Logs e métricas
-* Escala horizontal
-* Painel administrativo completo
-
-> Código limpo, funcional e com visão de mercado.
+**José Eduardo da Silva**  
+🎓 Análise e Desenvolvimento de Sistemas  
+💻 Backend Developer & AI Architect  
+🔗 [GitHub: @Eduardo09e32y4rhf](https://github.com/Eduardo09e32y4rhf)
