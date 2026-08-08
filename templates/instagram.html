@@ -183,13 +183,200 @@
                     <button type="submit" class="btn-disconnect"><i class="ri-link-unlink-m"></i> Desconectar Conta</button>
                 </form>
             {% else %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Instagram | Prosolution IA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #090d16;
+      --bg-surface: #111827;
+      --bg-card: rgba(23, 32, 51, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(168, 85, 247, 0.4);
+      --primary: #9333ea;
+      --primary-hover: #a855f7;
+      --accent: #06b6d4;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+    body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
+    .glow { position: fixed; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(147, 51, 234, 0.15), transparent 70%); top: -100px; right: -100px; pointer-events: none; }
+    .dashboard-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; z-index: 1; position: relative; }
+    .sidebar { background: rgba(17, 24, 39, 0.85); border-right: 1px solid var(--border); padding: 32px 24px; backdrop-filter: blur(16px); display: flex; flex-direction: column; }
+    .logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 40px; display: flex; align-items: center; gap: 8px; }
+    .logo span { background: linear-gradient(135deg, #a855f7, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .menu-list { display: flex; flex-direction: column; gap: 8px; }
+    .menu-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; color: var(--text-muted); text-decoration: none; border-radius: 12px; font-weight: 500; font-size: 0.95rem; border: 1px solid transparent; transition: all 0.25s ease;}
+    .menu-item:hover, .menu-item.active { background: rgba(147, 51, 234, 0.12); color: var(--text-main); transform: translateX(4px); }
+    .menu-item.active { background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(6, 182, 212, 0.1)); color: #fff; font-weight: 600; }
+    .menu-item i { font-size: 1.25rem; color: var(--primary-hover); }
+    
+    .main-content { padding: 40px 48px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;}
+    
+    .integration-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 50px;
+        backdrop-filter: blur(12px);
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .ig-icon-container {
+        width: 100px;
+        height: 100px;
+        border-radius: 30px;
+        background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        box-shadow: 0 10px 25px rgba(220, 39, 67, 0.3);
+    }
+    .ig-icon-container i {
+        font-size: 3.5rem;
+        color: #fff;
+    }
+    
+    .integration-card h2 {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        color: #fff;
+    }
+    
+    .integration-card p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 40px;
+    }
+    
+    .btn-connect {
+        background: #1877F2; /* Facebook Blue */
+        color: white;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    .btn-connect:hover {
+        background: #166fe5;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(24, 119, 242, 0.4);
+    }
+    
+    .btn-disconnect {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        padding: 16px 32px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+    }
+    .btn-disconnect:hover {
+        background: rgba(239, 68, 68, 0.2);
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 20px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 30px;
+    }
+    
+    .error-msg {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="logo"><i class="ri-flashlight-line" style="color: var(--primary-hover);"></i><div>PRO<span>SOLUTION</span></div></div>
+        <nav class="menu-list">
+            <a href="/dashboard/" class="menu-item {% if active_menu == 'home' %}active{% endif %}"><i class="ri-dashboard-line"></i> Início</a>
+            <a href="/dashboard/create" class="menu-item {% if active_menu == 'create' %}active{% endif %}"><i class="ri-edit-2-line"></i> Criar conteúdo</a>
+            <a href="/dashboard/calendar" class="menu-item {% if active_menu == 'calendar' %}active{% endif %}"><i class="ri-calendar-event-line"></i> Calendário</a>
+            <a href="/dashboard/instagram" class="menu-item {% if active_menu == 'instagram' %}active{% endif %}"><i class="ri-instagram-line"></i> Instagram</a>
+            <a href="/dashboard/subscription" class="menu-item {% if active_menu == 'subscription' %}active{% endif %}"><i class="ri-vip-crown-line"></i> Minha assinatura</a>
+            <a href="/dashboard/settings" class="menu-item {% if active_menu == 'settings' %}active{% endif %}"><i class="ri-settings-4-line"></i> Configurações</a>
+            
+            <form action="/auth/logout" method="post" style="margin-top: 20px;">
+              <button type="submit" class="menu-item" style="width: 100%; background: transparent; cursor: pointer; text-align: left; color: #ef4444; border: none;"><i class="ri-logout-box-r-line"></i> Sair</button>
+            </form>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="integration-card">
+            <div class="ig-icon-container">
+                <i class="ri-instagram-line"></i>
+            </div>
+            
+            {% if request.query_params.error %}
+            <div class="error-msg">
+                <i class="ri-error-warning-line"></i> {{ request.query_params.error }}
+            </div>
+            {% endif %}
+            
+            {% if is_connected %}
+                <div class="status-badge">
+                    <i class="ri-checkbox-circle-fill"></i> Conta Vinculada com Sucesso
+                </div>
+                <h2>Instagram Integrado</h2>
+                <p>O motor de IA da Prosolution agora tem acesso direto à sua conta comercial do Instagram para publicar seus conteúdos agendados automaticamente.</p>
+                
+                <form action="/dashboard/instagram/disconnect" method="post">
+                    <button type="submit" class="btn-disconnect"><i class="ri-link-unlink-m"></i> Desconectar Conta</button>
+                </form>
+            {% else %}
                 <h2>Conecte seu Instagram</h2>
                 <p>Vincule sua conta do Instagram (Business) através da sua página do Facebook para permitir que a Prosolution publique seus posts agendados automaticamente.</p>
                 
-                <a href="/dashboard/instagram/connect" class="btn-connect">
-                    <i class="ri-facebook-circle-fill" style="font-size: 1.3rem;"></i> Conectar com Facebook
+                <a href="/api/instagram/login" class="btn-instagram" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 10px; font-size: 1.1rem; transition: transform 0.2s; box-shadow: 0 4px 15px rgba(220, 39, 67, 0.4);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <i class="ri-instagram-line" style="font-size: 1.4rem;"></i> Conectar Instagram
                 </a>
-                <div style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted);">Você será redirecionado para o ambiente seguro do Meta.</div>
+                <p style="margin-top: 20px; font-size: 0.85rem; color: #64748b; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.4;">
+                    *A autenticação é feita com segurança pela Meta (Facebook), pois as contas do Instagram Business são nativamente vinculadas às Páginas do Facebook.
+                </p>
             {% endif %}
         </div>
     </main>
