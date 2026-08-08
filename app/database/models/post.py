@@ -11,6 +11,8 @@ class Post(Base):
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     platform = Column(String, default="instagram")
+    status = Column(String, default="draft")
+    scheduled_for = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="posts")

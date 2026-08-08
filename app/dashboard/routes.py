@@ -148,8 +148,75 @@ async def generate_content(
     return RedirectResponse("/dashboard/create", status_code=302)
 
 @router.get("/calendar", response_class=HTMLResponse)
-async def calendar(request: Request, user: dict = Depends(get_current_user_from_cookie)):
-    return templates.TemplateResponse("placeholder.html", {"request": request, "title": "Calendário", "active_menu": "calendar"})
+async def calendar(request: Request, user_token: dict = Depends(get_current_user_from_cookie), db: AsyncSession = Depends(get_db)):
+    from app.database.models.user import User
+    
+    email = user_token.get("sub")
+    user_db = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+    
+    posts = (await db.execute(select(Post).where(Post.user_id == user_db.id, Post.status == "scheduled"))).scalars().all()
+    
+    user_data = {
+        "email": user_db.email,
+        "name": user_db.email.split("@")[0].capitalize(),
+    }
+    
+    return templates.TemplateResponse("calendar.html", {
+        "request": request,
+        "user": user_data,
+        "posts": posts,
+        "active_menu": "calendar"
+    })
+
+@router.post("/posts/{post_id}/schedule")
+async def schedule_post(
+    post_id: int,
+    request: Request,
+    user_token: dict = Depends(get_current_user_from_cookie),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.database.models.user import User
+    email = user_token.get("sub")
+    user_db = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+    
+    post = (await db.execute(select(Post).where(Post.id == post_id, Post.user_id == user_db.id))).scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post não encontrado")
+        
+    form_data = await request.form()
+    scheduled_for_str = form_data.get("scheduled_for")
+    
+    try:
+        # Formato esperado: YYYY-MM-DDTHH:MM
+        dt = datetime.strptime(scheduled_for_str, "%Y-%m-%dT%H:%M")
+        post.scheduled_for = dt
+        post.status = "scheduled"
+        await db.commit()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Data inválida")
+        
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse("/dashboard/calendar", status_code=302)
+
+@router.post("/posts/{post_id}/delete")
+async def delete_post(
+    post_id: int,
+    user_token: dict = Depends(get_current_user_from_cookie),
+    db: AsyncSession = Depends(get_db)
+):
+    from app.database.models.user import User
+    email = user_token.get("sub")
+    user_db = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+    
+    post = (await db.execute(select(Post).where(Post.id == post_id, Post.user_id == user_db.id))).scalar_one_or_none()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post não encontrado")
+        
+    await db.delete(post)
+    await db.commit()
+    
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse("/dashboard/create", status_code=302)
 
 @router.get("/instagram", response_class=HTMLResponse)
 async def instagram(request: Request, user: dict = Depends(get_current_user_from_cookie)):

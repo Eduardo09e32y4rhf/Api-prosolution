@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calendário | Prosolution IA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  
+  <!-- FullCalendar -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+  <style>
+    :root {
+      --bg-base: #090d16;
+      --bg-surface: #111827;
+      --bg-card: rgba(23, 32, 51, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(168, 85, 247, 0.4);
+      --primary: #9333ea;
+      --primary-hover: #a855f7;
+      --accent: #06b6d4;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      /* FullCalendar Variables override */
+      --fc-page-bg-color: transparent;
+      --fc-border-color: var(--border);
+      --fc-daygrid-event-dot-width: 8px;
+      --fc-today-bg-color: rgba(147, 51, 234, 0.1);
+      --fc-neutral-bg-color: rgba(255,255,255,0.05);
+      --fc-button-bg-color: var(--bg-card);
+      --fc-button-border-color: var(--border);
+      --fc-button-hover-bg-color: rgba(147, 51, 234, 0.2);
+      --fc-button-hover-border-color: var(--primary);
+      --fc-button-active-bg-color: var(--primary);
+      --fc-button-active-border-color: var(--primary);
+      --fc-event-bg-color: rgba(147, 51, 234, 0.2);
+      --fc-event-border-color: var(--primary);
+      --fc-event-text-color: #fff;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+    body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
+    .glow { position: fixed; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(147, 51, 234, 0.15), transparent 70%); top: -100px; right: -100px; pointer-events: none; }
+    .dashboard-container { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; z-index: 1; position: relative; }
+    .sidebar { background: rgba(17, 24, 39, 0.85); border-right: 1px solid var(--border); padding: 32px 24px; backdrop-filter: blur(16px); display: flex; flex-direction: column; }
+    .logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 40px; display: flex; align-items: center; gap: 8px; }
+    .logo span { background: linear-gradient(135deg, #a855f7, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .menu-list { display: flex; flex-direction: column; gap: 8px; }
+    .menu-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; color: var(--text-muted); text-decoration: none; border-radius: 12px; font-weight: 500; font-size: 0.95rem; border: 1px solid transparent; transition: all 0.25s ease;}
+    .menu-item:hover, .menu-item.active { background: rgba(147, 51, 234, 0.12); color: var(--text-main); transform: translateX(4px); }
+    .menu-item.active { background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(6, 182, 212, 0.1)); color: #fff; font-weight: 600; }
+    .menu-item i { font-size: 1.25rem; color: var(--primary-hover); }
+    
+    .main-content { padding: 40px 48px; overflow-y: auto; height: 100vh;}
+    
+    .calendar-container {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 30px;
+        backdrop-filter: blur(12px);
+        margin-top: 30px;
+        min-height: 700px;
+    }
+    
+    /* FullCalendar overrides */
+    .fc-theme-standard td, .fc-theme-standard th {
+        border-color: var(--border);
+    }
+    .fc-col-header-cell-cushion, .fc-daygrid-day-number {
+        color: var(--text-main);
+        text-decoration: none;
+    }
+    .fc-event {
+        cursor: pointer;
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        border: 1px solid rgba(168, 85, 247, 0.5) !important;
+        background: rgba(147, 51, 234, 0.25) !important;
+        transition: all 0.2s ease;
+    }
+    .fc-event:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+        background: rgba(147, 51, 234, 0.4) !important;
+    }
+    
+    .fc-toolbar-title {
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <div class="logo"><i class="ri-flashlight-line" style="color: var(--primary-hover);"></i><div>PRO<span>SOLUTION</span></div></div>
+        <nav class="menu-list">
+            <a href="/dashboard/" class="menu-item {% if active_menu == 'home' %}active{% endif %}"><i class="ri-dashboard-line"></i> Início</a>
+            <a href="/dashboard/create" class="menu-item {% if active_menu == 'create' %}active{% endif %}"><i class="ri-edit-2-line"></i> Criar conteúdo</a>
+            <a href="/dashboard/calendar" class="menu-item {% if active_menu == 'calendar' %}active{% endif %}"><i class="ri-calendar-event-line"></i> Calendário</a>
+            <a href="/dashboard/instagram" class="menu-item {% if active_menu == 'instagram' %}active{% endif %}"><i class="ri-instagram-line"></i> Instagram</a>
+            <a href="/dashboard/subscription" class="menu-item {% if active_menu == 'subscription' %}active{% endif %}"><i class="ri-vip-crown-line"></i> Minha assinatura</a>
+            <a href="/dashboard/settings" class="menu-item {% if active_menu == 'settings' %}active{% endif %}"><i class="ri-settings-4-line"></i> Configurações</a>
+            
+            <form action="/auth/logout" method="post" style="margin-top: 20px;">
+              <button type="submit" class="menu-item" style="width: 100%; background: transparent; cursor: pointer; text-align: left; color: #ef4444; border: none;"><i class="ri-logout-box-r-line"></i> Sair</button>
+            </form>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="welcome-title">
+            <h1 style="font-size: 2.2rem; font-weight: 700;">Calendário</h1>
+            <p style="color: var(--text-muted);">Visualize todos os seus conteúdos agendados em um só lugar.</p>
+        </div>
+        
+        <div class="calendar-container">
+            <div id="calendar"></div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal para Exibir Post -->
+<div id="eventModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div style="background: var(--bg-surface); padding: 30px; border-radius: 16px; border: 1px solid var(--border); width: 450px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color: #fff; font-size: 1.2rem;" id="modalTitle">Post Agendado</h3>
+            <i class="ri-close-line" style="color: var(--text-muted); font-size: 1.5rem; cursor: pointer;" onclick="closeEventModal()"></i>
+        </div>
+        <div id="modalDate" style="color: var(--primary); font-size: 0.9rem; margin-bottom: 15px; font-weight: 600;"></div>
+        <div id="modalContent" style="color: var(--text-muted); font-size: 0.95rem; white-space: pre-wrap; line-height: 1.6; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 10px; border: 1px solid var(--border);"></div>
+    </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    
+    // Convertendo dados do Jinja para formato que o FullCalendar entende
+    var postsEvents = [
+        {% for post in posts %}
+        {
+            id: '{{ post.id }}',
+            title: '{{ post.title | replace("'", "\\'") }}',
+            start: '{{ post.scheduled_for.isoformat() if post.scheduled_for else "" }}',
+            extendedProps: {
+                content: `{{ post.content | replace('\n', '\\n') | replace("'", "\\'") | safe }}`
+            }
+        },
+        {% endfor %}
+    ];
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,listWeek'
+      },
+      events: postsEvents,
+      locale: 'pt-br',
+      buttonText: {
+        today: 'Hoje',
+        month: 'Mês',
+        week: 'Semana',
+        list: 'Lista'
+      },
+      eventClick: function(info) {
+          document.getElementById('modalTitle').innerText = info.event.title;
+          document.getElementById('modalDate').innerText = "Agendado para: " + info.event.start.toLocaleString();
+          document.getElementById('modalContent').innerText = info.event.extendedProps.content;
+          document.getElementById('eventModal').style.display = 'flex';
+      }
+    });
+    
+    calendar.render();
+  });
+  
+  function closeEventModal() {
+      document.getElementById('eventModal').style.display = 'none';
+  }
+</script>
+</body>
+</html>

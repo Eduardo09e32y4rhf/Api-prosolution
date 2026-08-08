@@ -133,10 +133,18 @@
                             <div class="post-date">{{ post.created_at.strftime('%d/%m/%Y às %H:%M') }}</div>
                         </div>
                         <div class="post-content">{{ post.content }}</div>
-                        <div class="badge"><i class="ri-draft-line"></i> Rascunho (Salvo)</div>
+                        <div class="badge">
+                            {% if post.status == 'scheduled' %}
+                                <i class="ri-calendar-check-line"></i> Agendado para {{ post.scheduled_for.strftime('%d/%m/%Y %H:%M') }}
+                            {% else %}
+                                <i class="ri-draft-line"></i> Rascunho (Salvo)
+                            {% endif %}
+                        </div>
                         <div style="margin-top: 15px; display: flex; gap: 10px;">
-                            <button style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;"><i class="ri-calendar-schedule-line"></i> Agendar</button>
-                            <button style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 8px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;"><i class="ri-delete-bin-line"></i> Excluir</button>
+                            <button onclick="openScheduleModal({{ post.id }})" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;"><i class="ri-calendar-schedule-line"></i> Agendar</button>
+                            <form action="/dashboard/posts/{{ post.id }}/delete" method="post" style="margin: 0;">
+                                <button type="submit" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 8px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;"><i class="ri-delete-bin-line"></i> Excluir</button>
+                            </form>
                         </div>
                     </div>
                     {% endfor %}
@@ -151,5 +159,32 @@
         </div>
     </main>
 </div>
+
+<!-- Modal de Agendamento -->
+<div id="scheduleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div style="background: var(--bg-surface); padding: 30px; border-radius: 16px; border: 1px solid var(--border); width: 400px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color: #fff; font-size: 1.2rem;">Agendar Post</h3>
+            <i class="ri-close-line" style="color: var(--text-muted); font-size: 1.5rem; cursor: pointer;" onclick="closeScheduleModal()"></i>
+        </div>
+        <form id="scheduleForm" method="post">
+            <div class="form-group">
+                <label>Data e Hora</label>
+                <input type="datetime-local" name="scheduled_for" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: #fff;">
+            </div>
+            <button type="submit" class="action-btn" style="width: 100%; margin-top: 10px;"><i class="ri-calendar-check-line"></i> Confirmar Agendamento</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openScheduleModal(postId) {
+        document.getElementById('scheduleForm').action = '/dashboard/posts/' + postId + '/schedule';
+        document.getElementById('scheduleModal').style.display = 'flex';
+    }
+    function closeScheduleModal() {
+        document.getElementById('scheduleModal').style.display = 'none';
+    }
+</script>
 </body>
 </html>
