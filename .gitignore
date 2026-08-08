@@ -6,6 +6,14 @@ venv/
 # Python
 __pycache__/
 *.pyc
+# Ambiente
+.env
+.venv
+venv/
+
+# Python
+__pycache__/
+*.pyc
 *.pyo
 
 # Banco local (se quiser recriar no deploy)
@@ -15,6 +23,9 @@ __pycache__/
 .vscode/
 .idea/
 *.log
+
+# Referências
+/references/
 
 Lib/
 Include/
