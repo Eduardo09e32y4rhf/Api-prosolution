@@ -13,6 +13,9 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
+# Imagens enviadas (armazenamento local)
+/media/
+
 # Banco local
 *.db
 

@@ -69,6 +69,19 @@ class Settings(BaseSettings):
     ASAAS_WEBHOOK_TOKEN: str | None = None
     ASAAS_DUE_DAYS: int = 3
 
+    # === IMAGENS / ARMAZENAMENTO ===
+    # local: grava em MEDIA_ROOT e serve em /media (bom p/ desenvolvimento e homologação)
+    # s3:    qualquer armazenamento compatível com S3 (Cloudflare R2, AWS S3, Backblaze B2)
+    STORAGE_BACKEND: str = "local"
+    MEDIA_ROOT: str = "./media"
+    MAX_UPLOAD_MB: int = 8  # limite do Instagram para imagens
+    S3_ENDPOINT_URL: str | None = None  # R2: https://<account>.r2.cloudflarestorage.com
+    S3_REGION: str = "auto"
+    S3_BUCKET: str | None = None
+    S3_ACCESS_KEY_ID: str | None = None
+    S3_SECRET_ACCESS_KEY: str | None = None
+    S3_PUBLIC_BASE_URL: str | None = None  # URL pública do bucket, sem barra final
+
     # === PLANO PRO ===
     PRO_PLAN_PRICE: Decimal = Decimal("97.00")
     PRO_PLAN_DAYS: int = 30

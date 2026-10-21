@@ -6,7 +6,7 @@ publica no próprio Instagram e paga o plano PRO.
 | Semana | Tema | Pronto quando | Status |
 |--------|------|---------------|--------|
 | 1 | Fundação: limpeza, CI, homologação (HTTPS, backup, Sentry), e-mail, páginas legais, pedidos à Meta e ao Asaas | Site no ar em HTTPS, CI verde, pedidos enviados | Código pronto; deploy e credenciamentos dependem do responsável (ver [DEPLOY.md](DEPLOY.md) e [CREDENCIAMENTO.md](CREDENCIAMENTO.md)) |
-| 2 | Upload de imagem (R2/S3), validação no padrão do Instagram, pré-visualização e edição da legenda | Usuário agenda com foto do computador, sem URL | — |
+| 2 | Upload de imagem (R2/S3), validação no padrão do Instagram, pré-visualização e edição da legenda | Usuário agenda com foto do computador, sem URL | Código pronto e testado; falta criar o bucket R2 (ver [DEPLOY.md](DEPLOY.md), seção 7.1) |
 | 3 | Limites do plano grátis, CPF/CNPJ, assinatura recorrente do Asaas, e-mails de cobrança | Conta grátis bate o limite, assina no sandbox e é liberada | — |
 | 4 | Renovação do token da Meta, status do container, novas tentativas, aviso de falha; envio do App Review | Post agendado publica sozinho; revisão submetida | — |
 | 5 | Confirmação de e-mail, troca de senha, exclusão de conta (LGPD), callback de exclusão da Meta, landing page honesta | Conta criada, confirmada e excluída de ponta a ponta | — |

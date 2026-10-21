@@ -18,6 +18,8 @@ os.environ.update(
         "ASAAS_WEBHOOK_TOKEN": "webhook-test-token",
         "ASAAS_API_KEY": "asaas-test-key",
         "APP_BASE_URL": "https://testserver",
+        "MEDIA_ROOT": str(Path(_tmpdir) / "media"),
+        "STORAGE_BACKEND": "local",
     }
 )
 
@@ -65,6 +67,19 @@ class Client(httpx.AsyncClient):
         if self.csrf_token is None:
             await self.fetch_csrf()
         return await self.post(url, data={**(data or {}), "csrf_token": self.csrf_token or ""})
+
+    async def upload(
+        self,
+        url: str,
+        content: bytes,
+        filename: str = "foto.jpg",
+        content_type: str = "image/jpeg",
+        send_csrf: bool = True,
+    ) -> httpx.Response:
+        if self.csrf_token is None:
+            await self.fetch_csrf()
+        data = {"csrf_token": self.csrf_token or ""} if send_csrf else {}
+        return await self.post(url, data=data, files={"file": (filename, content, content_type)})
 
     async def register(self, email: str, password: str = PASSWORD) -> httpx.Response:
         return await self.submit("/auth/register", {"email": email, "password": password})

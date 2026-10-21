@@ -19,3 +19,4 @@ docs
 .mypy_cache
 .ruff_cache
 backups
+media

@@ -1,9 +1,8 @@
 import logging
 import secrets
-from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,7 +11,7 @@ from app.ai.engine import AIEngine, AIGenerationError
 from app.core.config import settings
 from app.core.csrf import verify_csrf
 from app.core.templates import templates
-from app.core.timeutils import format_local, local_to_utc, utc_to_local
+from app.core.timeutils import format_local, utc_to_local
 from app.database.models.ai_log import AILog
 from app.database.models.brand_profile import BrandProfile
 from app.database.models.business import Business
@@ -41,13 +40,6 @@ async def _get_business(db: AsyncSession, user: User) -> Business | None:
 
 async def _get_brand(db: AsyncSession, user: User) -> BrandProfile | None:
     return (await db.execute(select(BrandProfile).where(BrandProfile.user_id == user.id))).scalar_one_or_none()
-
-
-async def _get_own_post(db: AsyncSession, user: User, post_id: int) -> Post:
-    post = (await db.execute(select(Post).where(Post.id == post_id, Post.user_id == user.id))).scalar_one_or_none()
-    if not post:
-        raise HTTPException(status_code=404, detail="Post não encontrado")
-    return post
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -161,44 +153,6 @@ async def calendar(
     return templates.TemplateResponse(
         request, "calendar.html", {"user": _user_context(user), "events": events, "active_menu": "calendar"}
     )
-
-
-@router.post("/posts/{post_id}/schedule")
-async def schedule_post(
-    post_id: int,
-    scheduled_for: str = Form(...),
-    image_url: str = Form(""),
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> RedirectResponse:
-    post = await _get_own_post(db, user, post_id)
-
-    try:
-        # O navegador envia "YYYY-MM-DDTHH:MM" no horário local do usuário
-        local_dt = datetime.strptime(scheduled_for, "%Y-%m-%dT%H:%M")
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Data inválida") from None
-
-    image_url = image_url.strip()
-    if image_url and not image_url.startswith("https://"):
-        raise HTTPException(status_code=400, detail="A URL da imagem precisa começar com https://")
-
-    post.scheduled_for = local_to_utc(local_dt)
-    post.status = "scheduled"
-    if image_url:
-        post.image_url = image_url
-    await db.commit()
-    return RedirectResponse("/dashboard/calendar", status_code=302)
-
-
-@router.post("/posts/{post_id}/delete")
-async def delete_post(
-    post_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
-) -> RedirectResponse:
-    post = await _get_own_post(db, user, post_id)
-    await db.delete(post)
-    await db.commit()
-    return RedirectResponse("/dashboard/create", status_code=302)
 
 
 # --- INSTAGRAM ---

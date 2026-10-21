@@ -53,7 +53,7 @@ async def test_worker_publishes_due_posts_once(client: Client, db, monkeypatch):
         user_id=user.id,
         title="vencido",
         content="legenda",
-        image_url="https://exemplo.com/a.jpg",
+        image_key="posts/1/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.jpg",
         status="scheduled",
         scheduled_for=utcnow() - timedelta(minutes=1),
     )
@@ -61,7 +61,7 @@ async def test_worker_publishes_due_posts_once(client: Client, db, monkeypatch):
         user_id=user.id,
         title="futuro",
         content="legenda",
-        image_url="https://exemplo.com/b.jpg",
+        image_key="posts/1/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.jpg",
         status="scheduled",
         scheduled_for=utcnow() + timedelta(days=1),
     )

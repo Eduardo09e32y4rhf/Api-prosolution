@@ -11,6 +11,7 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .
 RUN chmod +x startup.sh \
+    && mkdir -p /app/media \
     && useradd --create-home --uid 1000 app \
     && chown -R app:app /app
 USER app

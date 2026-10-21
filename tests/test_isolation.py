@@ -41,17 +41,16 @@ async def test_user_cannot_delete_or_schedule_other_users_post(client: Client, o
 async def test_schedule_converts_local_time_to_utc(client: Client, db):
     await client.register("alice@exemplo.com")
     post = await _create_post(db, "alice@exemplo.com", "Agendado")
+    post.image_key = "posts/1/cccccccccccccccccccccccccccccccc.jpg"
+    await db.commit()
 
-    resp = await client.submit(
-        f"/dashboard/posts/{post.id}/schedule",
-        {"scheduled_for": "2030-01-01T10:00", "image_url": "https://exemplo.com/img.jpg"},
-    )
-    assert resp.status_code == 302
+    resp = await client.submit(f"/dashboard/posts/{post.id}/schedule", {"scheduled_for": "2030-01-01T10:00"})
+    assert resp.status_code == 303
     await db.refresh(post)
     assert post.status == "scheduled"
     # America/Sao_Paulo é UTC-3
     assert post.scheduled_for is not None and post.scheduled_for.isoformat() == "2030-01-01T13:00:00"
-    assert post.image_url == "https://exemplo.com/img.jpg"
+    assert post.image_url == "https://testserver/media/posts/1/cccccccccccccccccccccccccccccccc.jpg"
 
     calendar = await client.get("/dashboard/calendar")
     assert "2030-01-01T10:00:00" in calendar.text

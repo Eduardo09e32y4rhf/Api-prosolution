@@ -10,9 +10,12 @@ from sqlalchemy import text
 from app.auth.routes import router as auth_router
 from app.core.config import settings
 from app.core.csrf import CSRFMiddleware
+from app.core.limits import MaxBodySizeMiddleware
 from app.core.observability import init_sentry
 from app.core.rate_limit import limiter
+from app.core.storage import LocalStorage, storage
 from app.core.templates import templates
+from app.dashboard.posts import router as posts_router
 from app.dashboard.routes import router as dashboard_router
 from app.database.session import AsyncSessionLocal
 from app.legal.routes import router as legal_router
@@ -27,6 +30,8 @@ app = FastAPI(title="Prosolution API", docs_url=None if settings.ENVIRONMENT == 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 app.add_middleware(CSRFMiddleware)
+# Adicionado por último = mais externo: recusa uploads gigantes antes de qualquer parsing
+app.add_middleware(MaxBodySizeMiddleware, max_bytes=(settings.MAX_UPLOAD_MB + 2) * 1024 * 1024)
 
 
 @app.exception_handler(HTTPException)
@@ -37,6 +42,9 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> Respon
 
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+if isinstance(storage, LocalStorage):
+    # Com armazenamento local o próprio app serve as imagens (o Instagram as baixa daqui)
+    app.mount("/media", StaticFiles(directory=storage.root), name="media")
 
 
 @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
@@ -58,5 +66,6 @@ async def health() -> dict[str, str] | JSONResponse:
 
 app.include_router(auth_router, prefix="/auth")
 app.include_router(dashboard_router)
+app.include_router(posts_router)
 app.include_router(legal_router)
 app.include_router(payments_webhook_router, prefix="/api")

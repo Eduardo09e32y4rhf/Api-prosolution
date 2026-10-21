@@ -44,6 +44,9 @@ services:
       FORWARDED_ALLOW_IPS: "*"
     expose:
       - "3000"
+    volumes:
+      # Imagens enviadas pelos usuários (STORAGE_BACKEND=local). Com s3 este volume fica vazio.
+      - media:/app/media
     depends_on:
       db:
         condition: service_healthy
@@ -89,6 +92,7 @@ services:
         condition: service_healthy
 
 volumes:
+  media:
   pgdata:
   caddy_data:
   caddy_config:

@@ -63,6 +63,7 @@ Preencha no mínimo:
 | `COMPANY_*`, `CONTACT_EMAIL`, `PRIVACY_EMAIL` | Dados reais da empresa: aparecem nos Termos e na Política de Privacidade |
 | `SMTP_*` | Veja a seção 6 |
 | `SENTRY_DSN` | Veja a seção 7 |
+| `STORAGE_BACKEND` | `local` serve para homologação; para produção use `s3` (seção 7.1) |
 | `ASAAS_*` | Em homologação use o **sandbox** (`https://sandbox.asaas.com/api/v3`) |
 | `INSTAGRAM_REDIRECT_URI` | `https://homolog.seudominio.com.br/dashboard/instagram/callback` |
 
@@ -123,6 +124,39 @@ docker compose exec web python -m app.core.email seu-email@exemplo.com
 
 Recomendado também: um monitor de uptime gratuito (UptimeRobot, Better Stack) apontando para `https://homolog.seudominio.com.br/health`.
 
+## 7.1 Imagens dos posts (armazenamento)
+
+Cada post agendado precisa de uma imagem **acessível publicamente pela internet**: o Instagram baixa o arquivo
+pela URL na hora de publicar. A aplicação recorta/converte a imagem para JPEG, remove os metadados (GPS) e guarda
+em um destes lugares:
+
+| `STORAGE_BACKEND` | Quando usar | Observações |
+|-------------------|-------------|-------------|
+| `local` (padrão)  | Desenvolvimento e homologação | Grava no volume Docker `media` e o próprio app serve em `https://SEU_DOMINIO/media/...`. **Não entra no backup do Postgres**; se o servidor for perdido, as imagens dos posts ainda não publicados somem |
+| `s3`              | Produção | Cloudflare R2, AWS S3, Backblaze B2 ou outro serviço compatível com S3 |
+
+### Configurando o Cloudflare R2 (barato, sem taxa de saída)
+
+1. No painel da Cloudflare: **R2 → Create bucket** (ex.: `prosolution-media`).
+2. **Settings → Public access**: conecte um **domínio próprio** (ex.: `media.seudominio.com.br`). O endereço `r2.dev` serve para testes, mas tem limite de uso.
+3. **R2 → Manage API tokens → Create API token** com permissão *Object Read & Write* apenas nesse bucket. Guarde o *Access Key ID* e o *Secret Access Key* (aparecem uma vez só).
+4. No `.env`:
+
+```
+STORAGE_BACKEND=s3
+S3_ENDPOINT_URL=https://<ID_DA_CONTA>.r2.cloudflarestorage.com
+S3_REGION=auto
+S3_BUCKET=prosolution-media
+S3_ACCESS_KEY_ID=...
+S3_SECRET_ACCESS_KEY=...
+S3_PUBLIC_BASE_URL=https://media.seudominio.com.br
+```
+
+5. `docker compose up -d` e teste: envie uma imagem em um post e abra a URL dela numa janela anônima.
+
+> Não ative listagem pública do bucket. As imagens têm nomes aleatórios (`posts/<usuário>/<uuid>.jpg`), então só quem tem a URL as encontra.
+> Trocar de `local` para `s3` não migra as imagens já enviadas: copie a pasta `media/posts` para o bucket com `rclone` antes de trocar.
+
 ## 8. Backups
 
 - O serviço `backup` gera `./backups/prosolution-AAAAMMDD-HHMMSS.dump` todo dia às `BACKUP_TIME` (UTC) e apaga os mais antigos que `BACKUP_RETENTION_DAYS`.
@@ -155,6 +189,8 @@ Teste uma restauração pelo menos uma vez: backup que nunca foi restaurado não
 - [ ] Cadastro, login e logout funcionam
 - [ ] "Esqueci minha senha" envia o e-mail e o link redefine a senha
 - [ ] Gerar post (com ou sem `OPENAI_API_KEY`) cria um rascunho
+- [ ] Em "Editar e agendar": enviar uma foto, ver a pré-visualização, salvar a legenda e agendar
+- [ ] A URL da imagem abre numa janela anônima (é o que o Instagram vai baixar)
 - [ ] `docker compose logs backup` mostra o primeiro backup gerado
 - [ ] Um erro forçado aparece no Sentry
 - [ ] Monitor de uptime configurado

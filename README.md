@@ -9,6 +9,8 @@ A **Prosolution IA** é uma plataforma SaaS em **FastAPI** que gera posts para I
 ## ✨ Funcionalidades
 
 * **Gerador de posts com IA** (OpenAI via LangChain) usando segmento, público, tom de voz, palavras proibidas e CTA da marca. Sem `OPENAI_API_KEY` roda em modo simulado.
+* **Editor de posts**: edição da legenda (limites de 2.200 caracteres e 30 hashtags do Instagram), pré-visualização, upload de imagem e agendamento em uma única tela.
+* **Imagens no padrão do Instagram**: aceita JPEG/PNG de até 8 MB, converte para JPEG, recorta pelo centro o que passar da faixa de proporção 4:5 a 1.91:1, reduz para 1440 px e remove os metadados (GPS). Armazenamento local ou S3/Cloudflare R2.
 * **Calendário de agendamento** (FullCalendar), com o horário do usuário convertido para UTC.
 * **Publicação automática no Instagram** por um **worker separado**, com OAuth da Meta (token de longa duração).
 * **Assinatura PRO com data de expiração**: cada pagamento PIX confirmado soma `PRO_PLAN_DAYS` dias; estorno cancela; o plano expira sozinho.
@@ -19,6 +21,7 @@ A **Prosolution IA** é uma plataforma SaaS em **FastAPI** que gera posts para I
 * **CSRF** em todos os formulários (double submit cookie).
 * **Rate limit** (slowapi) em login, cadastro e recuperação de senha.
 * **Recuperação de senha por e-mail** (SMTP): o link expira e deixa de valer depois que a senha muda. A resposta é a mesma exista ou não o e-mail.
+* **Uploads seguros**: a imagem é decodificada de verdade (extensão e Content-Type são ignorados), há proteção contra "bombas de descompressão", limite de tamanho (413) já na entrada da requisição e os nomes dos arquivos são aleatórios.
 * **Webhook do Asaas autenticado** pelo header `asaas-access-token`; sem token configurado, todos os webhooks são recusados. Só pagamentos gerados pela própria aplicação liberam o plano.
 * **Tokens do Instagram criptografados** no banco (Fernet).
 * OAuth do Instagram com parâmetro `state`.
@@ -43,6 +46,7 @@ app/
 ├── auth/routes.py      # Cadastro, login, logout, recuperação de senha
 ├── core/               # Configuração, CSRF, rate limit, e-mail, criptografia, fuso horário, Sentry
 ├── dashboard/routes.py # Telas do painel (conteúdo, calendário, Instagram, assinatura, configurações)
+├── dashboard/posts.py  # Editor de posts: legenda, imagem, agendamento, exclusão
 ├── database/           # Modelos, sessão assíncrona e repositórios
 ├── instagram/service.py# OAuth e publicação na Graph API
 ├── legal/routes.py     # Termos, Política de Privacidade e Exclusão de Dados
