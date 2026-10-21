@@ -39,7 +39,12 @@
   </section>
 
   <footer class="footer">
-    <p>© 2026 Prosolution IA • CNPJ 54.694.364/0001-48 • Brasil</p>
+    <p>© 2026 {{ company.app_name }} • CNPJ {{ company.document }} • Brasil</p>
+    <p style="margin-top: 8px; font-size: 0.9rem;">
+      <a href="/termos" style="color: #94a3b8;">Termos de Uso</a> •
+      <a href="/privacidade" style="color: #94a3b8;">Política de Privacidade</a> •
+      <a href="/exclusao-de-dados" style="color: #94a3b8;">Exclusão de Dados</a>
+    </p>
   </footer>
 
   <!-- WhatsApp Button -->
@@ -79,6 +84,10 @@
             {{ csrf_input(request) }}
             <input type="email" name="email" placeholder="Seu e-mail" required style="padding: 15px; border-radius: 10px; background: #1f2937; border: 1px solid #374151; color: #fff; width: 100%; font-size: 1rem; outline: none; transition: border 0.3s;">
             <input type="password" name="password" placeholder="Sua senha" required style="padding: 15px; border-radius: 10px; background: #1f2937; border: 1px solid #374151; color: #fff; width: 100%; font-size: 1rem; outline: none; transition: border 0.3s;">
+            <p id="termsNotice" style="display: none; color: #94a3b8; font-size: 0.85rem; text-align: left;">
+                Ao criar a conta você concorda com os <a href="/termos" target="_blank" style="color: #a855f7;">Termos de Uso</a>
+                e a <a href="/privacidade" target="_blank" style="color: #a855f7;">Política de Privacidade</a>.
+            </p>
             <button type="submit" class="btn-cta" id="submitBtn" style="width: 100%; border: none; font-size: 1.1rem; margin-top: 10px; cursor: pointer;">Entrar</button>
         </form>
 
@@ -110,12 +119,14 @@
             form.action = "/auth/login";
             title.innerText = "Acesse sua Conta";
             submitBtn.innerText = "Entrar";
+            document.getElementById('termsNotice').style.display = 'none';
             toggleText.innerText = "Ainda não tem conta?";
             toggleBtn.innerText = "Cadastre-se";
         } else {
             form.action = "/auth/register";
             title.innerText = "Crie sua Conta";
             submitBtn.innerText = "Cadastrar";
+            document.getElementById('termsNotice').style.display = 'block';
             toggleText.innerText = "Já tem uma conta?";
             toggleBtn.innerText = "Fazer Login";
         }

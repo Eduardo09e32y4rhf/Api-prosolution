@@ -11,6 +11,7 @@ import logging
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sqlalchemy import select
 
+from app.core.observability import init_sentry
 from app.core.timeutils import utcnow
 from app.database.models.brand_profile import BrandProfile
 from app.database.models.post import Post
@@ -99,4 +100,5 @@ async def main() -> None:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    init_sentry("worker")
     asyncio.run(main())

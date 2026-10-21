@@ -14,6 +14,18 @@ class Settings(BaseSettings):
     APP_BASE_URL: str = "http://localhost:3000"
     APP_TIMEZONE: str = "America/Sao_Paulo"
 
+    # === EMPRESA (aparece nos Termos, na Política de Privacidade e no rodapé) ===
+    COMPANY_NAME: str = "[NOME DA EMPRESA]"
+    COMPANY_DOCUMENT: str = "[CNPJ]"
+    COMPANY_ADDRESS: str = "[ENDEREÇO]"
+    CONTACT_EMAIL: str = "[E-MAIL DE CONTATO]"
+    PRIVACY_EMAIL: str = "[E-MAIL DO ENCARREGADO DE DADOS]"
+    LEGAL_LAST_UPDATED: str = "21/10/2026"
+
+    # === OBSERVABILIDADE ===
+    SENTRY_DSN: str | None = None
+    SENTRY_TRACES_SAMPLE_RATE: float = 0.0
+
     # === SEGURANÇA (obrigatórias, sem fallback) ===
     SECRET_KEY: str
     ENCRYPTION_KEY: str  # chave Fernet usada para criptografar tokens de terceiros no banco

@@ -13,7 +13,8 @@ os.environ.update(
         "ENVIRONMENT": "test",
         "SECRET_KEY": "test-secret-key",
         "ENCRYPTION_KEY": Fernet.generate_key().decode(),
-        "DATABASE_URL": f"sqlite+aiosqlite:///{Path(_tmpdir) / 'test.db'}",
+        # TEST_DATABASE_URL permite rodar a mesma suíte contra Postgres (como no CI)
+        "DATABASE_URL": os.environ.get("TEST_DATABASE_URL") or f"sqlite+aiosqlite:///{Path(_tmpdir) / 'test.db'}",
         "ASAAS_WEBHOOK_TOKEN": "webhook-test-token",
         "ASAAS_API_KEY": "asaas-test-key",
         "APP_BASE_URL": "https://testserver",

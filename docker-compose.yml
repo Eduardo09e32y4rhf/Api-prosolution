@@ -1,4 +1,23 @@
+# Produção / homologação: Caddy (HTTPS) -> web (FastAPI) + worker, Postgres e backup diário.
+# Uso: cp .env.example .env && (preencha) && docker compose up -d --build
 services:
+  caddy:
+    image: caddy:2.8-alpine
+    restart: always
+    environment:
+      DOMAIN: ${DOMAIN:?defina DOMAIN no .env, por exemplo homolog.seudominio.com.br}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+
   db:
     image: postgres:16-alpine
     restart: always
@@ -20,9 +39,11 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-prosolution}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-prosolution}
-      ENVIRONMENT: production
-    ports:
-      - "3000:3000"
+      APP_BASE_URL: https://${DOMAIN}
+      # A porta 3000 não é publicada: só o Caddy alcança o web, então é seguro confiar no X-Forwarded-For
+      FORWARDED_ALLOW_IPS: "*"
+    expose:
+      - "3000"
     depends_on:
       db:
         condition: service_healthy
@@ -31,6 +52,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+      start_period: 20s
 
   worker:
     build: .
@@ -39,7 +61,7 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-prosolution}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-prosolution}
-      ENVIRONMENT: production
+      APP_BASE_URL: https://${DOMAIN}
     depends_on:
       db:
         condition: service_healthy
@@ -47,5 +69,26 @@ services:
       web:
         condition: service_healthy
 
+  backup:
+    image: postgres:16-alpine
+    restart: always
+    entrypoint: ["/bin/sh", "/scripts/backup.sh"]
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-prosolution}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB:-prosolution}
+      BACKUP_TIME: ${BACKUP_TIME:-06:00}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+    volumes:
+      - ./scripts/backup.sh:/scripts/backup.sh:ro
+      # Pasta no servidor: copie-a para fora da máquina (veja docs/DEPLOY.md)
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:

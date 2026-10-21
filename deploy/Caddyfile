@@ -1,0 +1,15 @@
+# HTTPS automático (Let's Encrypt) para o domínio em $DOMAIN.
+# O DNS do domínio precisa apontar para o servidor e as portas 80/443 precisam estar abertas.
+{$DOMAIN} {
+	encode gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	reverse_proxy web:3000
+}

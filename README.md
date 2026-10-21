@@ -23,6 +23,7 @@ A **Prosolution IA** é uma plataforma SaaS em **FastAPI** que gera posts para I
 * **Tokens do Instagram criptografados** no banco (Fernet).
 * OAuth do Instagram com parâmetro `state`.
 * `SECRET_KEY` e `ENCRYPTION_KEY` obrigatórias, sem valores padrão; nenhuma chave no código.
+* Erros monitorados no **Sentry** sem enviar dados pessoais.
 
 ---
 
@@ -40,10 +41,11 @@ A **Prosolution IA** é uma plataforma SaaS em **FastAPI** que gera posts para I
 app/
 ├── ai/engine.py        # Prompt e geração de posts com IA
 ├── auth/routes.py      # Cadastro, login, logout, recuperação de senha
-├── core/               # Configuração, CSRF, rate limit, e-mail, criptografia, fuso horário
+├── core/               # Configuração, CSRF, rate limit, e-mail, criptografia, fuso horário, Sentry
 ├── dashboard/routes.py # Telas do painel (conteúdo, calendário, Instagram, assinatura, configurações)
 ├── database/           # Modelos, sessão assíncrona e repositórios
 ├── instagram/service.py# OAuth e publicação na Graph API
+├── legal/routes.py     # Termos, Política de Privacidade e Exclusão de Dados
 ├── payments/           # Asaas (cobrança), webhook e regras da assinatura
 ├── security.py         # Hash de senha, JWT e dependência get_current_user
 ├── worker.py           # Processo que publica os posts agendados
@@ -51,6 +53,8 @@ app/
 alembic/                # Migrações do banco
 templates/ static/      # Frontend
 tests/                  # Testes (pytest + httpx.AsyncClient)
+deploy/Caddyfile        # Proxy HTTPS
+scripts/                # backup.sh e restore.sh do Postgres
 ```
 
 ---
@@ -79,24 +83,29 @@ Acesse **http://localhost:3000**.
 
 > Em desenvolvimento, sem `SMTP_HOST`, o e-mail de recuperação de senha aparece no log do servidor.
 
-## 🐳 Rodando com Docker (produção)
+## 🐳 Rodando com Docker (homologação / produção)
 
 ```bash
-cp .env.example .env   # preencha SECRET_KEY, ENCRYPTION_KEY, POSTGRES_PASSWORD e as chaves das integrações
+cp .env.example .env   # preencha DOMAIN, SECRET_KEY, ENCRYPTION_KEY, POSTGRES_PASSWORD e as integrações
 docker compose up -d --build
 ```
 
-Sobe três serviços:
+| Serviço  | Função |
+|----------|--------|
+| `caddy`  | HTTPS automático (Let's Encrypt) e cabeçalhos de segurança na frente da aplicação |
+| `web`    | Aplica as migrações e serve a aplicação (porta interna 3000) |
+| `worker` | Publica os posts agendados (várias instâncias são seguras graças ao `FOR UPDATE SKIP LOCKED`) |
+| `db`     | PostgreSQL 16 com volume persistente |
+| `backup` | `pg_dump` diário em `./backups` com retenção |
 
-| Serviço  | Função                                                        |
-|----------|---------------------------------------------------------------|
-| `db`     | PostgreSQL 16 com volume persistente                          |
-| `web`    | Aplica as migrações e serve a aplicação na porta 3000         |
-| `worker` | Publica os posts agendados (uma instância por vez é suficiente; várias são seguras graças ao `FOR UPDATE SKIP LOCKED`) |
+Passo a passo completo (servidor, DNS, e-mail, Sentry, backups e restauração): **[docs/DEPLOY.md](docs/DEPLOY.md)**.
 
-> Use uma `POSTGRES_PASSWORD` sem caracteres especiais de URL (`@`, `:`, `/`), ou codifique-a.
-> Coloque um proxy reverso com HTTPS na frente e defina `FORWARDED_ALLOW_IPS` com o IP dele.
-> Com mais de um processo web, aponte `RATE_LIMIT_STORAGE_URI` para um Redis.
+## 📋 Documentos
+
+* [docs/ROADMAP.md](docs/ROADMAP.md): plano de 8 semanas até o lançamento
+* [docs/DEPLOY.md](docs/DEPLOY.md): como colocar a homologação no ar
+* [docs/CREDENCIAMENTO.md](docs/CREDENCIAMENTO.md): verificação da empresa na Meta e conta de produção no Asaas
+* Páginas legais públicas: `/termos`, `/privacidade`, `/exclusao-de-dados`
 
 ## 💳 Configurando o Asaas
 
@@ -111,6 +120,8 @@ ruff check . && ruff format --check .
 mypy
 alembic upgrade head && alembic check
 pytest
+# contra Postgres, incluindo concorrência do worker e backup real:
+TEST_DATABASE_URL=postgresql+asyncpg://usuario:senha@localhost/prosolution_test pytest
 ```
 
 O GitHub Actions roda tudo isso em cada push na `main` e em cada pull request.

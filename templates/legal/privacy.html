@@ -1,0 +1,56 @@
+{% extends "legal/_layout.html" %}
+{% block title %}Política de Privacidade{% endblock %}
+{% block content %}
+<h1>Política de Privacidade</h1>
+<p class="updated">Última atualização: {{ company.last_updated }}</p>
+
+<p>Esta Política explica como <strong>{{ company.name }}</strong> (CNPJ {{ company.document }}), controladora dos dados, trata informações pessoais na plataforma <strong>{{ company.app_name }}</strong>, conforme a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD).</p>
+
+<h2>1. Dados que coletamos e para quê</h2>
+<table>
+  <tr><th>Dado</th><th>Finalidade</th><th>Base legal (LGPD)</th></tr>
+  <tr><td>E-mail e senha (guardada apenas como hash bcrypt)</td><td>Criar e proteger sua conta, recuperar senha</td><td>Execução de contrato</td></tr>
+  <tr><td>Informações da empresa e da marca (segmento, produtos, público, cidade, WhatsApp, tom de voz, CTA)</td><td>Personalizar os textos gerados pela IA</td><td>Execução de contrato</td></tr>
+  <tr><td>Temas digitados, textos gerados e posts agendados</td><td>Gerar, guardar, agendar e publicar seus posts; histórico de uso</td><td>Execução de contrato</td></tr>
+  <tr><td>Token de acesso e ID da conta Instagram profissional</td><td>Publicar os posts que você agendou. O token é guardado criptografado</td><td>Execução de contrato</td></tr>
+  <tr><td>Dados de pagamento (identificador de cliente no Asaas, valores, status; CPF/CNPJ quando exigido para cobrança)</td><td>Cobrança do plano e obrigações fiscais</td><td>Execução de contrato e obrigação legal</td></tr>
+  <tr><td>Endereço IP e registros técnicos de acesso</td><td>Segurança, prevenção a fraudes e limite de tentativas de login</td><td>Legítimo interesse e obrigação legal (Marco Civil da Internet)</td></tr>
+</table>
+<p>Não usamos seus dados para publicidade e não os vendemos.</p>
+
+<h2>2. Dados que recebemos da Meta (Facebook/Instagram)</h2>
+<p>Quando você conecta o Instagram, recebemos da Meta apenas o necessário para publicar: um token de acesso, a lista das Páginas do Facebook que você administra (para localizar a conta Instagram vinculada) e o ID da conta Instagram profissional. Usamos esses dados exclusivamente para publicar o conteúdo que você mesmo agendou. Você pode revogar o acesso a qualquer momento no painel ou em <em>Configurações do Facebook → Integrações comerciais</em>.</p>
+
+<h2>3. Com quem compartilhamos</h2>
+<ul>
+  <li><strong>OpenAI</strong> (EUA): recebe o tema e as informações da empresa e da marca para gerar o texto. Não enviamos seu e-mail nem senha.</li>
+  <li><strong>Meta</strong>: recebe o texto e a imagem dos posts que você agendou, no momento da publicação.</li>
+  <li><strong>Asaas</strong>: processa os pagamentos.</li>
+  <li><strong>Provedores de infraestrutura</strong>: hospedagem, envio de e-mail e monitoramento de erros (configurado para não receber e-mails, IPs ou cookies).</li>
+  <li>Autoridades, quando houver obrigação legal ou ordem judicial.</li>
+</ul>
+<p>Alguns desses fornecedores ficam fora do Brasil. Nesses casos, a transferência internacional ocorre com base no art. 33 da LGPD, para a execução do contrato com você.</p>
+
+<h2>4. Cookies</h2>
+<p>Usamos apenas cookies essenciais: o de sessão (mantém você logado), o de proteção contra CSRF e um cookie temporário durante a conexão com o Instagram. Não usamos cookies de publicidade ou rastreamento.</p>
+
+<h2>5. Por quanto tempo guardamos</h2>
+<ul>
+  <li>Dados da conta, da empresa, da marca e posts: enquanto a conta existir.</li>
+  <li>Registros de acesso: 6 meses (Marco Civil da Internet, art. 15).</li>
+  <li>Dados de pagamento: pelo prazo exigido pela legislação fiscal (até 5 anos).</li>
+  <li>Backups: apagados em até 30 dias após a exclusão da conta.</li>
+</ul>
+
+<h2>6. Segurança</h2>
+<p>Usamos HTTPS, senhas com hash bcrypt, tokens de terceiros criptografados em repouso, proteção contra CSRF e limite de tentativas de login. Nenhum sistema é 100% seguro; em caso de incidente relevante, comunicaremos você e a ANPD conforme a LGPD.</p>
+
+<h2>7. Seus direitos</h2>
+<p>Você pode, a qualquer momento: confirmar se tratamos seus dados; acessá-los; corrigi-los; pedir anonimização, bloqueio ou eliminação; pedir a portabilidade; saber com quem compartilhamos; e revogar consentimentos (art. 18 da LGPD). Veja como excluir seus dados em <a href="/exclusao-de-dados">Exclusão de Dados</a>.</p>
+
+<h2>8. Encarregado de dados (DPO) e contato</h2>
+<p>Fale com o encarregado pelo e-mail <a href="mailto:{{ company.privacy_email }}">{{ company.privacy_email }}</a>. Respondemos em até 15 dias. Você também pode reclamar à Autoridade Nacional de Proteção de Dados (ANPD).</p>
+
+<h2>9. Alterações</h2>
+<p>Esta Política pode ser atualizada. A data no topo indica a versão vigente; mudanças relevantes serão avisadas por e-mail ou no painel.</p>
+{% endblock %}
