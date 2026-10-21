@@ -1,55 +1,62 @@
-from fastapi import FastAPI, Request, Depends
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+import logging
 
-# Routers
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
+from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from sqlalchemy import text
+
 from app.auth.routes import router as auth_router
+from app.core.config import settings
+from app.core.csrf import CSRFMiddleware
+from app.core.observability import init_sentry
+from app.core.rate_limit import limiter
+from app.core.templates import templates
 from app.dashboard.routes import router as dashboard_router
+from app.database.session import AsyncSessionLocal
+from app.legal.routes import router as legal_router
 from app.payments.webhooks import router as payments_webhook_router
 
-# Database
-from app.database.base import init_db
-from app.database.session import get_db
-from app.database.repositories.user_repo import UserRepository
-from fastapi import HTTPException
-from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logger = logging.getLogger(__name__)
+init_sentry("web")
 
-app = FastAPI(title="Prosolution API")
+app = FastAPI(title="Prosolution API", docs_url=None if settings.ENVIRONMENT == "production" else "/docs")
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
+app.add_middleware(CSRFMiddleware)
+
 
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def http_exception_handler(request: Request, exc: HTTPException) -> Response:
     if exc.status_code == 401 and request.url.path.startswith("/dashboard"):
         return RedirectResponse(url="/", status_code=302)
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers)
 
-# === STARTUP ===
-@app.on_event("startup")
-async def startup():
-    from app.worker import start_worker
-    await init_db()
-    start_worker()
 
-# === STATIC / TEMPLATES ===
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
 
-# === HOME ===
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
 
-# === ROUTERS ===
+@app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
+async def home(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse(request, "login.html", {})
+
+
+@app.api_route("/health", methods=["GET", "HEAD"], response_model=None)
+async def health() -> dict[str, str] | JSONResponse:
+    """Usado pelo healthcheck do Docker e por monitores externos: também confere o banco."""
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("SELECT 1"))
+    except Exception:
+        logger.exception("Health check: banco de dados indisponível")
+        return JSONResponse(status_code=503, content={"status": "error", "database": "unavailable"})
+    return {"status": "ok", "database": "ok"}
+
+
 app.include_router(auth_router, prefix="/auth")
 app.include_router(dashboard_router)
+app.include_router(legal_router)
 app.include_router(payments_webhook_router, prefix="/api")
-
-# === API TEST ===
-@app.get("/api")
-async def api_root():
-    return {"status": "🚀 Prosolution API online"}
-
-# === USERS (TESTE) ===
-@app.get("/api/users")
-async def list_users(db=Depends(get_db)):
-    return await UserRepository(db).list_all()

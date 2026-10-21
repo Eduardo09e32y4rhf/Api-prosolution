@@ -155,6 +155,7 @@
             <a href="/dashboard/settings" class="menu-item {% if active_menu == 'settings' %}active{% endif %}"><i class="ri-settings-4-line"></i> Configurações</a>
             
             <form action="/auth/logout" method="post" style="margin-top: 20px;">
+                {{ csrf_input(request) }}
               <button type="submit" class="menu-item" style="width: 100%; background: transparent; cursor: pointer; text-align: left; color: #ef4444; border: none;"><i class="ri-logout-box-r-line"></i> Sair</button>
             </form>
         </nav>
@@ -166,9 +167,9 @@
                 <i class="ri-instagram-line"></i>
             </div>
             
-            {% if request.query_params.error %}
+            {% if error_message %}
             <div class="error-msg">
-                <i class="ri-error-warning-line"></i> {{ request.query_params.error }}
+                <i class="ri-error-warning-line"></i> {{ error_message }}
             </div>
             {% endif %}
             
@@ -180,6 +181,7 @@
                 <p>O motor de IA da Prosolution agora tem acesso direto à sua conta comercial do Instagram para publicar seus conteúdos agendados automaticamente.</p>
                 
                 <form action="/dashboard/instagram/disconnect" method="post">
+                    {{ csrf_input(request) }}
                     <button type="submit" class="btn-disconnect"><i class="ri-link-unlink-m"></i> Desconectar Conta</button>
                 </form>
             {% else %}

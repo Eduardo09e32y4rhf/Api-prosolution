@@ -108,6 +108,7 @@
             <a href="/dashboard/settings" class="menu-item {% if active_menu == 'settings' %}active{% endif %}"><i class="ri-settings-4-line"></i> Configurações</a>
             
             <form action="/auth/logout" method="post" style="margin-top: 20px;">
+                {{ csrf_input(request) }}
               <button type="submit" class="menu-item" style="width: 100%; background: transparent; cursor: pointer; text-align: left; color: #ef4444; border: none;"><i class="ri-logout-box-r-line"></i> Sair</button>
             </form>
         </nav>
@@ -126,8 +127,15 @@
                 <p>Obrigado por assinar a Prosolution. Todos os recursos ilimitados, incluindo Postagem Automática no Instagram e Motor de IA Ilimitado estão desbloqueados para a sua conta.</p>
                 
                 <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; display: inline-block; margin-top: 20px;">
-                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 5px;">Sua assinatura é gerenciada via Asaas.</div>
+                    <div style="color: #fff; font-weight: 600; margin-bottom: 5px;">Ativo até {{ expires_at }}</div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 5px;">Pagamentos processados via Asaas (PIX). Renovar agora soma mais {{ plan_days }} dias.</div>
                 </div>
+                <form action="/dashboard/subscription/upgrade" method="post" style="margin-top: 20px;">
+                    {{ csrf_input(request) }}
+                    <button type="submit" class="btn-upgrade">
+                        <i class="ri-refresh-line"></i> Renovar por R$ {{ '%.2f' | format(plan_price) | replace('.', ',') }}
+                    </button>
+                </form>
             {% else %}
                 <div class="vip-icon free-icon">
                     <i class="ri-user-star-line"></i>
@@ -135,6 +143,11 @@
                 <div class="status-badge-free">
                     <i class="ri-information-line"></i> Plano Gratuito
                 </div>
+                {% if request.query_params.error %}
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 12px; border-radius: 8px; margin: 15px 0; font-size: 0.9rem;">
+                    <i class="ri-error-warning-line"></i> Não foi possível gerar a cobrança agora. Tente novamente em instantes.
+                </div>
+                {% endif %}
                 <h2>Desbloqueie o Poder da IA</h2>
                 <p>Atualize para o Plano PRO e tenha o social media perfeito trabalhando para a sua empresa 24 horas por dia.</p>
                 
@@ -146,8 +159,9 @@
                 </ul>
                 <br>
                 <form action="/dashboard/subscription/upgrade" method="post">
+                    {{ csrf_input(request) }}
                     <button type="submit" class="btn-upgrade">
-                        <i class="ri-vip-crown-line"></i> Fazer Upgrade para PRO
+                        <i class="ri-vip-crown-line"></i> Assinar PRO por R$ {{ '%.2f' | format(plan_price) | replace('.', ',') }} / {{ plan_days }} dias
                     </button>
                 </form>
             {% endif %}

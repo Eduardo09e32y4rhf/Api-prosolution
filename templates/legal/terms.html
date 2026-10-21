@@ -1,0 +1,54 @@
+{% extends "legal/_layout.html" %}
+{% block title %}Termos de Uso{% endblock %}
+{% block content %}
+<h1>Termos de Uso</h1>
+<p class="updated">Última atualização: {{ company.last_updated }}</p>
+
+<p>Estes Termos regulam o uso da plataforma <strong>{{ company.app_name }}</strong> ({{ company.base_url }}), oferecida por <strong>{{ company.name }}</strong>, CNPJ {{ company.document }}. Ao criar uma conta, você declara que leu e concorda com estes Termos e com a <a href="/privacidade">Política de Privacidade</a>.</p>
+
+<h2>1. O serviço</h2>
+<p>A plataforma gera sugestões de legendas para Instagram com inteligência artificial a partir das informações da sua empresa e da sua marca, permite agendar esses posts e, quando você conecta uma conta Instagram profissional, publica-os automaticamente na data marcada.</p>
+
+<h2>2. Conta</h2>
+<ul>
+  <li>Você precisa ter pelo menos 18 anos e fornecer um e-mail válido.</li>
+  <li>Você é responsável por manter sua senha em sigilo e por toda atividade feita na sua conta.</li>
+  <li>Uma conta pode ser usada por uma empresa. Avise-nos imediatamente em caso de uso não autorizado.</li>
+</ul>
+
+<h2>3. Conteúdo gerado por IA e responsabilidade pelo que é publicado</h2>
+<ul>
+  <li>Os textos são gerados automaticamente e podem conter erros, imprecisões ou informações desatualizadas. <strong>Revise todo conteúdo antes de agendar.</strong></li>
+  <li>Você é o único responsável pelo conteúdo publicado na sua conta, incluindo textos, imagens, preços, promoções e direitos autorais e de imagem.</li>
+  <li>Você deve respeitar os <a href="https://help.instagram.com/581066165581870" target="_blank" rel="noopener">Termos de Uso do Instagram</a> e as Diretrizes da Comunidade da Meta.</li>
+</ul>
+
+<h2>4. Integração com o Instagram</h2>
+<p>A conexão é feita pelo login oficial da Meta. Você pode desconectar sua conta a qualquer momento no painel ou nas configurações do Facebook. Não garantimos a publicação caso a Meta altere, limite ou suspenda o acesso à sua conta ou à API.</p>
+
+<h2>5. Planos e pagamento</h2>
+<ul>
+  <li>O plano gratuito tem limites de uso informados no painel. O plano PRO é pago antecipadamente por períodos e libera os recursos pelo prazo contratado.</li>
+  <li>Os pagamentos são processados pelo Asaas. Os valores e o período de cada plano são exibidos antes da contratação.</li>
+  <li>Sem pagamento de renovação, a conta volta ao plano gratuito ao fim do período. Os seus dados não são apagados por isso.</li>
+  <li>Você pode exercer o direito de arrependimento em até 7 dias da primeira contratação (art. 49 do Código de Defesa do Consumidor), solicitando o reembolso por <a href="mailto:{{ company.contact_email }}">{{ company.contact_email }}</a>.</li>
+</ul>
+
+<h2>6. Uso proibido</h2>
+<p>É proibido usar a plataforma para conteúdo ilegal, enganoso, discriminatório, que viole direitos de terceiros ou para spam; tentar acessar dados de outros usuários; ou sobrecarregar, copiar ou fazer engenharia reversa do serviço. Podemos suspender contas que violem estes Termos.</p>
+
+<h2>7. Disponibilidade e limitação de responsabilidade</h2>
+<p>Trabalhamos para manter o serviço disponível, mas ele é oferecido "no estado em que se encontra", podendo ter interrupções para manutenção ou por falhas de terceiros (Meta, OpenAI, Asaas, provedores de hospedagem). Na extensão permitida pela lei, nossa responsabilidade fica limitada ao valor pago por você nos últimos 3 meses.</p>
+
+<h2>8. Encerramento</h2>
+<p>Você pode encerrar sua conta a qualquer momento seguindo as instruções de <a href="/exclusao-de-dados">Exclusão de Dados</a>.</p>
+
+<h2>9. Alterações</h2>
+<p>Podemos atualizar estes Termos. Mudanças relevantes serão comunicadas por e-mail ou no painel com antecedência razoável.</p>
+
+<h2>10. Lei e foro</h2>
+<p>Estes Termos seguem as leis brasileiras. Fica eleito o foro do domicílio do consumidor.</p>
+
+<h2>Contato</h2>
+<p><a href="mailto:{{ company.contact_email }}">{{ company.contact_email }}</a></p>
+{% endblock %}

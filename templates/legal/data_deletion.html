@@ -1,0 +1,31 @@
+{% extends "legal/_layout.html" %}
+{% block title %}Exclusão de Dados{% endblock %}
+{% block content %}
+<h1>Exclusão de Dados</h1>
+<p class="updated">Última atualização: {{ company.last_updated }}</p>
+
+<p>Você pode pedir a exclusão da sua conta e de todos os dados associados a qualquer momento, sem custo.</p>
+
+<h2>Como solicitar</h2>
+<ol>
+  <li>Envie um e-mail para <a href="mailto:{{ company.privacy_email }}?subject=Exclus%C3%A3o%20de%20dados">{{ company.privacy_email }}</a> com o assunto <strong>"Exclusão de dados"</strong>, a partir do e-mail cadastrado na sua conta.</li>
+  <li>Confirmaremos o pedido por e-mail para garantir que ele partiu de você.</li>
+  <li>A exclusão é concluída em até <strong>15 dias</strong> e você recebe uma confirmação.</li>
+</ol>
+
+<h2>O que é apagado</h2>
+<ul>
+  <li>Conta (e-mail e senha), informações da empresa e da marca.</li>
+  <li>Posts, rascunhos, agendamentos e o histórico de textos gerados pela IA.</li>
+  <li>Token de acesso e ID da conta Instagram conectada.</li>
+  <li>Cópias em backup, em até 30 dias.</li>
+</ul>
+
+<h2>O que pode ser mantido</h2>
+<p>Registros de pagamento e notas fiscais pelo prazo exigido pela legislação fiscal, e registros de acesso por 6 meses (Marco Civil da Internet). Esses dados ficam bloqueados e não são usados para nenhuma outra finalidade.</p>
+
+<h2>Removendo o acesso pelo Facebook</h2>
+<p>Você também pode remover o acesso do {{ company.app_name }} à sua conta pelo Facebook: <em>Configurações e privacidade → Configurações → Integrações comerciais</em>, selecione <strong>{{ company.app_name }}</strong> e clique em <strong>Remover</strong>. Isso impede novas publicações imediatamente. Para apagar também os dados guardados por nós, faça o pedido acima.</p>
+
+<p>Posts que já foram publicados no Instagram ficam na sua conta do Instagram e podem ser apagados por lá.</p>
+{% endblock %}

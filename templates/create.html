@@ -82,6 +82,7 @@
             <a href="/dashboard/settings" class="menu-item {% if active_menu == 'settings' %}active{% endif %}"><i class="ri-settings-4-line"></i> Configurações</a>
             
             <form action="/auth/logout" method="post" style="margin-top: 20px;">
+                {{ csrf_input(request) }}
               <button type="submit" class="menu-item" style="width: 100%; background: transparent; cursor: pointer; text-align: left; color: #ef4444; border: none;"><i class="ri-logout-box-r-line"></i> Sair</button>
             </form>
         </nav>
@@ -108,7 +109,14 @@
                 </div>
                 {% endif %}
 
+                {% if request.query_params.error == 'ai_fail' %}
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;">
+                    <i class="ri-error-warning-line"></i> Não foi possível gerar o post agora. Tente novamente em instantes.
+                </div>
+                {% endif %}
+
                 <form action="/dashboard/create/generate" method="post" onsubmit="document.getElementById('loadingOverlay').style.display='flex'">
+                    {{ csrf_input(request) }}
                     <div class="form-group">
                         <label>Tema ou Ideia</label>
                         <input type="text" name="topic" placeholder="Ex: Dicas para cuidar do sorriso no inverno..." required>
@@ -130,12 +138,12 @@
                     <div class="post-card">
                         <div class="post-header">
                             <div class="post-title">{{ post.title }}</div>
-                            <div class="post-date">{{ post.created_at.strftime('%d/%m/%Y às %H:%M') }}</div>
+                            <div class="post-date">{{ post.created_at | localtime('%d/%m/%Y às %H:%M') }}</div>
                         </div>
                         <div class="post-content">{{ post.content }}</div>
                         <div class="badge">
                             {% if post.status == 'scheduled' %}
-                                <i class="ri-calendar-check-line"></i> Agendado para {{ post.scheduled_for.strftime('%d/%m/%Y %H:%M') }}
+                                <i class="ri-calendar-check-line"></i> Agendado para {{ post.scheduled_for | localtime }}
                             {% else %}
                                 <i class="ri-draft-line"></i> Rascunho (Salvo)
                             {% endif %}
@@ -143,6 +151,7 @@
                         <div style="margin-top: 15px; display: flex; gap: 10px;">
                             <button onclick="openScheduleModal({{ post.id }})" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;"><i class="ri-calendar-schedule-line"></i> Agendar</button>
                             <form action="/dashboard/posts/{{ post.id }}/delete" method="post" style="margin: 0;">
+                                {{ csrf_input(request) }}
                                 <button type="submit" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 8px 16px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;"><i class="ri-delete-bin-line"></i> Excluir</button>
                             </form>
                         </div>
@@ -168,9 +177,15 @@
             <i class="ri-close-line" style="color: var(--text-muted); font-size: 1.5rem; cursor: pointer;" onclick="closeScheduleModal()"></i>
         </div>
         <form id="scheduleForm" method="post">
+            {{ csrf_input(request) }}
             <div class="form-group">
                 <label>Data e Hora</label>
                 <input type="datetime-local" name="scheduled_for" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: #fff;">
+            </div>
+            <div class="form-group">
+                <label>URL pública da imagem (https://)</label>
+                <input type="url" name="image_url" placeholder="https://..." pattern="https://.*" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; color: #fff;">
+                <small style="color: var(--text-muted);">O Instagram exige uma imagem para publicar no feed.</small>
             </div>
             <button type="submit" class="action-btn" style="width: 100%; margin-top: 10px;"><i class="ri-calendar-check-line"></i> Confirmar Agendamento</button>
         </form>

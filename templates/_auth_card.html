@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{% endblock %} | Prosolution IA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/login.css">
+  <style>
+    .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .auth-card { background: #111827; border: 1px solid #374151; border-radius: 16px; padding: 40px; width: 100%; max-width: 420px; text-align: center; }
+    .auth-card h2 { margin-bottom: 15px; font-size: 1.6rem; color: #fff; }
+    .auth-card p { color: #94a3b8; margin-bottom: 20px; line-height: 1.5; }
+    .auth-card form { display: flex; flex-direction: column; gap: 15px; }
+    .auth-card input { padding: 15px; border-radius: 10px; background: #1f2937; border: 1px solid #374151; color: #fff; width: 100%; font-size: 1rem; outline: none; }
+    .auth-card input:focus { border-color: #a855f7; }
+    .auth-card button { width: 100%; border: none; font-size: 1.05rem; cursor: pointer; }
+    .auth-alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.95rem; }
+    .auth-alert.error { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .auth-alert.success { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .auth-back { display: inline-block; margin-top: 20px; color: #a855f7; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      {% block content %}{% endblock %}
+      <a href="/" class="auth-back"><i class="ri-arrow-left-line"></i> Voltar para o login</a>
+    </div>
+  </div>
+</body>
+</html>

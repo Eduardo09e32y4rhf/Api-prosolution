@@ -67,6 +67,7 @@
             <a href="/dashboard/settings" class="menu-item {% if active_menu == 'settings' %}active{% endif %}"><i class="ri-settings-4-line"></i> Configurações</a>
             
             <form action="/auth/logout" method="post" style="margin-top: 20px;">
+                {{ csrf_input(request) }}
               <button type="submit" class="menu-item" style="width: 100%; background: transparent; cursor: pointer; text-align: left; color: #ef4444; border: none;"><i class="ri-logout-box-r-line"></i> Sair</button>
             </form>
         </nav>
@@ -94,6 +95,7 @@
             <div class="settings-card">
                 <h2><i class="ri-store-2-line"></i> Minha Empresa</h2>
                 <form action="/dashboard/settings/business" method="post">
+                    {{ csrf_input(request) }}
                     <div class="form-group">
                         <label>Segmento de Mercado</label>
                         <input type="text" name="segment" placeholder="Ex: Clínica Odontológica, Moda, Tecnologia" value="{{ business.segment if business else '' }}">
@@ -137,6 +139,7 @@
             <div class="settings-card">
                 <h2><i class="ri-quill-pen-line"></i> Identidade da Marca</h2>
                 <form action="/dashboard/settings/brand" method="post">
+                    {{ csrf_input(request) }}
                     <div class="form-group">
                         <label>Tom de Voz</label>
                         <select name="tone">

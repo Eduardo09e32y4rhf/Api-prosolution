@@ -5,7 +5,7 @@
   <title>Prosolution IA | Automação de Marketing</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-  <link rel="stylesheet" href="static/css/login.css">
+  <link rel="stylesheet" href="/static/css/login.css">
 </head>
 <body>
 
@@ -39,7 +39,12 @@
   </section>
 
   <footer class="footer">
-    <p>© 2026 Prosolution IA • CNPJ 54.694.364/0001-48 • Brasil</p>
+    <p>© 2026 {{ company.app_name }} • CNPJ {{ company.document }} • Brasil</p>
+    <p style="margin-top: 8px; font-size: 0.9rem;">
+      <a href="/termos" style="color: #94a3b8;">Termos de Uso</a> •
+      <a href="/privacidade" style="color: #94a3b8;">Política de Privacidade</a> •
+      <a href="/exclusao-de-dados" style="color: #94a3b8;">Exclusão de Dados</a>
+    </p>
   </footer>
 
   <!-- WhatsApp Button -->
@@ -54,18 +59,41 @@
         
         <h2 style="margin-bottom: 25px; font-size: 1.8rem; color: #fff;" id="modalTitle">Acesse sua Conta</h2>
         
-        {% if request.query_params.error %}
+        {% set auth_errors = {
+            'invalid_credentials': 'Credenciais inválidas.',
+            'email_taken': 'E-mail já cadastrado.',
+            'weak_password': 'A senha precisa ter pelo menos 8 caracteres.',
+        } %}
+        {% set auth_messages = {'password_reset': 'Senha redefinida com sucesso. Faça login.'} %}
+        {% set auth_error = auth_errors.get(request.query_params.error) %}
+        {% set auth_message = auth_messages.get(request.query_params.msg) %}
+        {% if auth_error %}
         <div style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); margin-bottom: 20px; font-size: 0.95rem;">
-            {{ request.query_params.error }}
+            {{ auth_error }}
+        </div>
+        {% endif %}
+
+        {% if auth_message %}
+        <div style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3); margin-bottom: 20px; font-size: 0.95rem;">
+            {{ auth_message }}
         </div>
         {% endif %}
 
         <!-- Formulário dinâmico -->
         <form id="authForm" action="/auth/login" method="post" style="display: flex; flex-direction: column; gap: 15px;">
+            {{ csrf_input(request) }}
             <input type="email" name="email" placeholder="Seu e-mail" required style="padding: 15px; border-radius: 10px; background: #1f2937; border: 1px solid #374151; color: #fff; width: 100%; font-size: 1rem; outline: none; transition: border 0.3s;">
             <input type="password" name="password" placeholder="Sua senha" required style="padding: 15px; border-radius: 10px; background: #1f2937; border: 1px solid #374151; color: #fff; width: 100%; font-size: 1rem; outline: none; transition: border 0.3s;">
+            <p id="termsNotice" style="display: none; color: #94a3b8; font-size: 0.85rem; text-align: left;">
+                Ao criar a conta você concorda com os <a href="/termos" target="_blank" style="color: #a855f7;">Termos de Uso</a>
+                e a <a href="/privacidade" target="_blank" style="color: #a855f7;">Política de Privacidade</a>.
+            </p>
             <button type="submit" class="btn-cta" id="submitBtn" style="width: 100%; border: none; font-size: 1.1rem; margin-top: 10px; cursor: pointer;">Entrar</button>
         </form>
+
+        <div style="margin-top: 15px; font-size: 0.9rem;">
+            <a href="/auth/recover-password" style="color: #94a3b8; text-decoration: none;">Esqueci minha senha</a>
+        </div>
 
         <div style="margin-top: 20px; color: #94a3b8; font-size: 0.95rem;">
             <span id="toggleText">Ainda não tem conta?</span> 
@@ -74,7 +102,7 @@
     </div>
   </div>
 
-  <script src="static/js/matrix.js"></script>
+  <script src="/static/js/matrix.js"></script>
   <script>
     let isLogin = true;
 
@@ -91,12 +119,14 @@
             form.action = "/auth/login";
             title.innerText = "Acesse sua Conta";
             submitBtn.innerText = "Entrar";
+            document.getElementById('termsNotice').style.display = 'none';
             toggleText.innerText = "Ainda não tem conta?";
             toggleBtn.innerText = "Cadastre-se";
         } else {
             form.action = "/auth/register";
             title.innerText = "Crie sua Conta";
             submitBtn.innerText = "Cadastrar";
+            document.getElementById('termsNotice').style.display = 'block';
             toggleText.innerText = "Já tem uma conta?";
             toggleBtn.innerText = "Fazer Login";
         }
@@ -129,7 +159,7 @@
         btn.addEventListener('click', openLogin);
     });
 
-    {% if request.query_params.error %}
+    {% if auth_error or auth_message %}
         openLogin();
     {% endif %}
     

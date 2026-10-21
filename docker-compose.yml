@@ -1,18 +1,94 @@
-version: '3.8'
-
+# Produção / homologação: Caddy (HTTPS) -> web (FastAPI) + worker, Postgres e backup diário.
+# Uso: cp .env.example .env && (preencha) && docker compose up -d --build
 services:
+  caddy:
+    image: caddy:2.8-alpine
+    restart: always
+    environment:
+      DOMAIN: ${DOMAIN:?defina DOMAIN no .env, por exemplo homolog.seudominio.com.br}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-prosolution}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:-prosolution}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   web:
     build: .
-    container_name: prosolution_web
     restart: always
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
+    env_file: .env
     environment:
-      - ENVIRONMENT=production
-      # Aqui você preencherá as variáveis de ambiente em produção:
-      # - OPENAI_API_KEY=sua_chave
-      # - ASAAS_API_KEY=sua_chave_asaas
-      # - INSTAGRAM_APP_ID=seu_app_id
-      # - INSTAGRAM_APP_SECRET=seu_app_secret
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-prosolution}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-prosolution}
+      APP_BASE_URL: https://${DOMAIN}
+      # A porta 3000 não é publicada: só o Caddy alcança o web, então é seguro confiar no X-Forwarded-For
+      FORWARDED_ALLOW_IPS: "*"
+    expose:
+      - "3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  worker:
+    build: .
+    restart: always
+    command: ["python", "-m", "app.worker"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-prosolution}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-prosolution}
+      APP_BASE_URL: https://${DOMAIN}
+    depends_on:
+      db:
+        condition: service_healthy
+      # O web aplica as migrações antes de ficar saudável
+      web:
+        condition: service_healthy
+
+  backup:
+    image: postgres:16-alpine
+    restart: always
+    entrypoint: ["/bin/sh", "/scripts/backup.sh"]
+    environment:
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER:-prosolution}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB:-prosolution}
+      BACKUP_TIME: ${BACKUP_TIME:-06:00}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+    volumes:
+      - ./scripts/backup.sh:/scripts/backup.sh:ro
+      # Pasta no servidor: copie-a para fora da máquina (veja docs/DEPLOY.md)
+      - ./backups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
