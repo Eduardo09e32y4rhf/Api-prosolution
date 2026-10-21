@@ -1,22 +1,19 @@
 # Ambiente
 .env
-.venv
+.venv/
 venv/
+Lib/
+Include/
+Scripts/
 
 # Python
 __pycache__/
-*.pyc
-# Ambiente
-.env
-.venv
-venv/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Python
-__pycache__/
-*.pyc
-*.pyo
-
-# Banco local (se quiser recriar no deploy)
+# Banco local
 *.db
 
 # IDE
@@ -26,9 +23,3 @@ __pycache__/
 
 # Referências
 /references/
-
-Lib/
-Include/
-Scripts/
-.venv/
-venv/

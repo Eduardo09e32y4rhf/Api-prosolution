@@ -11,3 +11,10 @@ venv/
 .gitignore
 *.sqlite3
 prosolution.db
+*.db
+.github
+tests
+docs
+.pytest_cache
+.mypy_cache
+.ruff_cache

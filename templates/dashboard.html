@@ -353,6 +353,7 @@
             <a href="/dashboard/settings" class="menu-item {% if active_menu == 'settings' %}active{% endif %}"><i class="ri-settings-4-line"></i> Configurações</a>
             
             <form action="/auth/logout" method="post" style="margin-top: 20px;">
+                {{ csrf_input(request) }}
               <button type="submit" class="menu-item" style="width: 100%; background: transparent; cursor: pointer; text-align: left; color: #ef4444;"><i class="ri-logout-box-r-line"></i> Sair</button>
             </form>
         </nav>

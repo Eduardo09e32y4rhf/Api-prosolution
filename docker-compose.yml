@@ -1,18 +1,51 @@
-version: '3.8'
-
 services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-prosolution}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:-prosolution}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   web:
     build: .
-    container_name: prosolution_web
     restart: always
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-prosolution}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-prosolution}
+      ENVIRONMENT: production
     ports:
       - "3000:3000"
-    volumes:
-      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  worker:
+    build: .
+    restart: always
+    command: ["python", "-m", "app.worker"]
+    env_file: .env
     environment:
-      - ENVIRONMENT=production
-      # Aqui você preencherá as variáveis de ambiente em produção:
-      # - OPENAI_API_KEY=sua_chave
-      # - ASAAS_API_KEY=sua_chave_asaas
-      # - INSTAGRAM_APP_ID=seu_app_id
-      # - INSTAGRAM_APP_SECRET=seu_app_secret
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-prosolution}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-prosolution}
+      ENVIRONMENT: production
+    depends_on:
+      db:
+        condition: service_healthy
+      # O web aplica as migrações antes de ficar saudável
+      web:
+        condition: service_healthy
+
+volumes:
+  pgdata:

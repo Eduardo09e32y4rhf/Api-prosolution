@@ -1,6 +1,7 @@
-
 from sqlalchemy import text
+
 from app.database.session import AsyncSessionLocal
+
 
 async def get_dashboard_metrics():
     async with AsyncSessionLocal() as session:
@@ -15,5 +16,5 @@ async def get_dashboard_metrics():
             "total_payments": total_payments.scalar() or 0,
             "revenue": revenue.scalar() or 0,
             "last_post": str(last_post.scalar() or "—"),
-            "last_ai_action": str(last_ai.scalar() or "—")
+            "last_ai_action": str(last_ai.scalar() or "—"),
         }

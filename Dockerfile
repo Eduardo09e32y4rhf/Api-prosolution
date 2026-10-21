@@ -1,21 +1,21 @@
 FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .
+RUN chmod +x startup.sh \
+    && useradd --create-home --uid 1000 app \
+    && chown -R app:app /app
+USER app
 
-RUN chmod +x startup.sh
+EXPOSE 3000
 
+# O serviço web roda startup.sh; o worker sobrescreve o comando (veja docker-compose.yml)
 CMD ["./startup.sh"]

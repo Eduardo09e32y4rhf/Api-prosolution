@@ -1,25 +1,24 @@
-fastapi==0.124.4
-uvicorn==0.38.0
+fastapi==0.156.4
+uvicorn[standard]==0.54.0
+python-multipart==0.0.32
+jinja2==3.1.6
 
-SQLAlchemy==2.0.36
-greenlet>=3.0.0
-aiosqlite
-asyncpg
+SQLAlchemy[asyncio]==2.1.5
+alembic==1.20.0
+aiosqlite==0.22.1
+asyncpg==0.32.0
 
-python-dotenv==1.2.1
-pydantic-settings
-email-validator
+pydantic-settings==2.16.1
+email-validator==2.3.0
+tzdata==2025.3
 
+bcrypt==5.0.0
+python-jose[cryptography]==3.5.0
+cryptography==50.0.2
+slowapi==0.1.10
 
-requests
-jinja2
-httpx
-python-jose[cryptography]
+httpx==0.28.1
+langchain-core==1.6.12
+langchain-openai==1.7.2
 
-passlib[bcrypt]
-python-multipart
-google-genai
-openai
-
-
-apscheduler
+APScheduler==3.11.3

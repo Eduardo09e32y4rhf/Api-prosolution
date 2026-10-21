@@ -1,112 +1,149 @@
-from fastapi import APIRouter, Depends, HTTPException, Form
-from fastapi.responses import RedirectResponse
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.database.session import get_db
-from app.database.repositories.user_repo import UserRepository
-from app.security import verify_password, create_token
+import logging
+from urllib.parse import urlencode
 
-router = APIRouter(tags=["Auth"])
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
+from jose import JWTError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.config import settings
+from app.core.csrf import verify_csrf
+from app.core.email import send_email
+from app.core.rate_limit import limiter
+from app.core.templates import templates
+from app.database.repositories.user_repo import UserRepository
+from app.database.session import get_db
+from app.security import (
+    MIN_PASSWORD_LENGTH,
+    SESSION_COOKIE,
+    create_password_reset_token,
+    decode_token,
+    hash_password,
+    password_reset_token_matches,
+    set_session_cookie,
+    verify_password,
+)
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(tags=["Auth"], dependencies=[Depends(verify_csrf)])
+
+RECOVER_MESSAGE = "Se o e-mail existir, um link de recuperação foi enviado."
+
+
+def _normalize_email(email: str) -> str:
+    return email.strip().lower()
+
+
+def _redirect_home(**params: str) -> RedirectResponse:
+    return RedirectResponse(f"/?{urlencode(params)}", status_code=302)
+
 
 @router.post("/register")
+@limiter.limit(settings.REGISTER_RATE_LIMIT)
 async def register(
+    request: Request,
     email: str = Form(...),
     password: str = Form(...),
-    db: AsyncSession = Depends(get_db)
-):
-    from app.security import hash_password
+    db: AsyncSession = Depends(get_db),
+) -> RedirectResponse:
+    email = _normalize_email(email)
+    if len(password) < MIN_PASSWORD_LENGTH:
+        return _redirect_home(error="weak_password")
+
     repo = UserRepository(db)
-    existing_user = await repo.get_by_email(email)
-    
-    if existing_user:
-        return RedirectResponse("/?error=Email+já+cadastrado", status_code=302)
-        
-    new_user = await repo.create_user({"email": email, "password_hash": hash_password(password)})
-    token = create_token({"sub": new_user.email, "plan": "free"})
+    if await repo.get_by_email(email):
+        return _redirect_home(error="email_taken")
+
+    user = await repo.create_user(email=email, password_hash=hash_password(password))
     resp = RedirectResponse("/dashboard", status_code=302)
-    resp.set_cookie("token", token, httponly=True, secure=True, samesite="lax")
+    set_session_cookie(resp, user)
     return resp
+
 
 @router.post("/login")
+@limiter.limit(settings.LOGIN_RATE_LIMIT)
 async def login(
+    request: Request,
     email: str = Form(...),
     password: str = Form(...),
-    db: AsyncSession = Depends(get_db)
-):
-    repo = UserRepository(db)
-    user = await repo.get_by_email(email)
+    db: AsyncSession = Depends(get_db),
+) -> RedirectResponse:
+    user = await UserRepository(db).get_by_email(_normalize_email(email))
+    if not user or not verify_password(password, user.password_hash) or user.is_active is False:
+        return _redirect_home(error="invalid_credentials")
 
-    if not user or not verify_password(password, user.password_hash):
-        return RedirectResponse("/?error=Credenciais+inválidas", status_code=302)
-
-    token = create_token({"sub": user.email, "plan": getattr(user, "plan", "free")})
     resp = RedirectResponse("/dashboard", status_code=302)
-    resp.set_cookie("token", token, httponly=True, secure=True, samesite="lax")
+    set_session_cookie(resp, user)
     return resp
+
 
 @router.post("/logout")
-async def logout():
-    resp = RedirectResponse("/login", status_code=302)
-    resp.delete_cookie("token")
+async def logout() -> RedirectResponse:
+    resp = RedirectResponse("/", status_code=302)
+    resp.delete_cookie(SESSION_COOKIE)
     return resp
 
-@router.post("/recover-password")
+
+@router.get("/recover-password", response_class=HTMLResponse)
+async def recover_password_page(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse(request, "forgot_password.html", {})
+
+
+@router.post("/recover-password", response_class=HTMLResponse)
+@limiter.limit(settings.RECOVER_PASSWORD_RATE_LIMIT)
 async def recover_password(
+    request: Request,
+    background_tasks: BackgroundTasks,
     email: str = Form(...),
-    db: AsyncSession = Depends(get_db)
-):
-    repo = UserRepository(db)
-    user = await repo.get_by_email(email)
-    
-    if not user:
-        # Por segurança, retornamos a mesma mensagem para evitar enumeração
-        return {"msg": "Se o email existir, um link de recuperação foi enviado."}
-        
-    # Gera um token com duração de 15 minutos (0.25 horas)
-    token = create_token({"sub": user.email, "purpose": "password_reset"}, expires_delta_hours=0.25)
-    
-    link = f"http://localhost:8000/auth/reset-password?token={token}"
-    print(f"==================================================")
-    print(f"[SMTP SIMULADO] Email de recuperação para: {email}")
-    print(f"[SMTP SIMULADO] Link: {link}")
-    print(f"==================================================")
-    
-    return {"msg": "Se o email existir, um link de recuperação foi enviado.", "token_debug": token}
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse:
+    user = await UserRepository(db).get_by_email(_normalize_email(email))
+    if user:
+        token = create_password_reset_token(user)
+        link = f"{settings.APP_BASE_URL.rstrip('/')}/auth/reset-password?token={token}"
+        body = (
+            "Olá!\n\n"
+            "Recebemos um pedido para redefinir a senha da sua conta Prosolution.\n"
+            f"Use o link abaixo em até {settings.PASSWORD_RESET_EXPIRES_MINUTES} minutos:\n\n{link}\n\n"
+            "Se não foi você, ignore este e-mail."
+        )
+        # Envio em segundo plano: a resposta tem o mesmo tempo e conteúdo exista ou não o e-mail
+        background_tasks.add_task(send_email, user.email, "Redefinição de senha - Prosolution", body)
 
-from pydantic import BaseModel
-from app.security import hash_password
-from fastapi import Body
+    return templates.TemplateResponse(request, "forgot_password.html", {"message": RECOVER_MESSAGE})
 
-class ResetPasswordRequest(BaseModel):
-    token: str
-    new_password: str
 
-@router.post("/reset-password")
+@router.get("/reset-password", response_class=HTMLResponse)
+async def reset_password_page(request: Request, token: str = "") -> HTMLResponse:
+    return templates.TemplateResponse(request, "reset_password.html", {"token": token})
+
+
+@router.post("/reset-password", response_class=HTMLResponse, response_model=None)
 async def reset_password(
-    data: ResetPasswordRequest,
-    db: AsyncSession = Depends(get_db)
-):
-    import jwt
-    from app.core.config import settings
-    from app.security import ALGORITHM
-    
+    request: Request,
+    token: str = Form(...),
+    new_password: str = Form(...),
+    db: AsyncSession = Depends(get_db),
+) -> HTMLResponse | RedirectResponse:
+    def error(message: str) -> HTMLResponse:
+        return templates.TemplateResponse(
+            request, "reset_password.html", {"token": token, "error": message}, status_code=400
+        )
+
+    if len(new_password) < MIN_PASSWORD_LENGTH:
+        return error(f"A senha precisa ter pelo menos {MIN_PASSWORD_LENGTH} caracteres")
+
+    invalid = "Link inválido ou expirado. Solicite uma nova recuperação de senha."
     try:
-        payload = jwt.decode(data.token, settings.SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-        purpose = payload.get("purpose")
-        
-        if email is None or purpose != "password_reset":
-            raise HTTPException(status_code=401, detail="Token inválido")
-            
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Token inválido ou expirado")
-        
-    repo = UserRepository(db)
-    user = await repo.get_by_email(email)
-    
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuário não encontrado")
-        
-    user.password_hash = hash_password(data.new_password)
+        payload = decode_token(token)
+    except JWTError:
+        return error(invalid)
+
+    user = await UserRepository(db).get_by_email(payload.get("sub") or "")
+    if not user or not password_reset_token_matches(payload, user):
+        return error(invalid)
+
+    user.password_hash = hash_password(new_password)
     await db.commit()
-    
-    return {"msg": "Senha redefinida com sucesso"}
+    return _redirect_home(msg="password_reset")

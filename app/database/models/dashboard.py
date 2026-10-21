@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, String, DateTime, Numeric
+from sqlalchemy import Column, DateTime, Integer, Numeric, String
 from sqlalchemy.sql import func
+
 from app.database.base import Base
+
 
 class Post(Base):
     __tablename__ = "posts"
